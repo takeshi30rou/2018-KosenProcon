@@ -19,20 +19,17 @@ CF.Key.set(FACEAPI)
 docomo = Docomo(DOCOMOAPI)
 db = DB()
 
-
 haarcascade_path = "./haarcascade_frontalface_default.xml"
-ignore_coordinates = []
-tolerance = 0
 
 # Replace with your regional Base URL
 BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/"  
 CF.BaseUrl.set(BASE_URL)
 
+# 必要なフォルダの存在を確認する
 if not os.path.isdir("./cache"):
 	os.system("mkdir ./cache")
 	if not os.path.isdir("./cache/audio"):
 		os.system("mkdir ./cache/audio")
-
 if not os.path.isdir("./face/"):
 	os.system("mkdir "+"./face/")
 
@@ -86,7 +83,7 @@ def faceAPI_add_face(detect_result, identify_result):
 		face_image = face_image[top:top+height,left:left+width]
 		cv2.imwrite(path, face_image)
 
-def openCV_track_face(ignore_coordinates):
+def openCV_track_face():
 	detect_lost = "initialize"
 	time_sum = 0
 	face_num = 0
@@ -98,7 +95,6 @@ def openCV_track_face(ignore_coordinates):
 	while 1:
 		start = time.time()
 		
-
 		r, image = c.read()
 
 		#保存用に値渡しを行う
@@ -113,32 +109,8 @@ def openCV_track_face(ignore_coordinates):
 
 		#グレースケール変換
 		image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-		#物体認識（顔認識）の実行
-		#image – CV_8U 型の行列．ここに格納されている画像中から物体が検出されます
-		#objects – 矩形を要素とするベクトル．それぞれの矩形は，検出した物体を含みます
-		#scaleFactor – 各画像スケールにおける縮小量を表します
-		#minNeighbors – 物体候補となる矩形は，最低でもこの数だけの近傍矩形を含む必要があります
-		#flags – このパラメータは，新しいカスケードでは利用されません．古いカスケードに対しては，cvHaarDetectObjects 関数の場合と同じ意味を持ちます
-		#minSize – 物体が取り得る最小サイズ．これよりも小さい物体は無視されます
+		# カスケード分類を用いて顔認識を行う。返し値は顔の座標
 		facerect = cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(50, 50), maxSize=(100, 100))
-		#facerect = cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=3, minSize=(10, 10), flags = cv2.cv.CV_HAAR_SCALE_IMAGE)
-
-		# ##アスペクト比を無視してリサイズする
-		# image_gray = cv2.resize(image_gray,(250,250))
-		# facerect_resize = cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(0, 0))
-		new_facerect = []
-		if not ignore_coordinates == []:
-			if len(facerect) > 0:
-				for rect in facerect:
-					for ig_rect in ignore_coordinates:
-						tolerance_points = 0
-						for var in range(0,3):
-							if rect[var] in range(ig_rect[var]-tolerance,ig_rect[var]+tolerance):
-								tolerance_points += 1
-						if tolerance_points == 0:
-							new_facerect.append(rect)
-			facerect = new_facerect
 
 		if len(facerect) > 0:
 			#顔の数をカウント
@@ -169,12 +141,6 @@ def openCV_track_face(ignore_coordinates):
 		if key == 32:
 			swich_gui = not(swich_gui)
 		
-		
-		#無視される領域を描画する
-		if len(ignore_coordinates) > 0:
-			for rect in ignore_coordinates:
-				cv2.rectangle(image, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), (0, 255, 0), thickness=2)
-
 		#イメージを表示する
 		cv2.putText(image, str(round(elapsed_time*1000))+"ms", (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
 		cv2.putText(image, detect_lost, (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
@@ -206,47 +172,43 @@ def main_process():
 				faceAPI_add_face(detect_result, identify_result)
 				
 				docomo.talk("5秒間お待ちください")
-				fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
-				video = cv2.VideoWriter('video.avi', fourcc, 10.0, (640, 480))
-				for i in range(1, 10*5):
-					r, image = c.read()
-					img = cv2.resize(image, (640,480))
-					video.write(img)
-					cv2.putText(img, str(i/10.0), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
-					cv2.imshow("face",img)
-					cv2.waitKey(1)
+				# fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+				# video = cv2.VideoWriter('video.avi', fourcc, 10.0, (640, 480))
+				# for i in range(1, 10*5):
+				# 	r, image = c.read()
+				# 	img = cv2.resize(image, (640,480))
+				# 	video.write(img)
+				# 	cv2.putText(img, str(i/10.0), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
+				# 	cv2.imshow("face",img)
+				# 	cv2.waitKey(1)
 
-				docomo.talk("完了しました")
-				url = "http://10.12.156.150:8000/emotion"
-				file = "video.avi"
-				r = requests.post(url, data=open(file, "rb"))
+				# docomo.talk("完了しました")
+				# url = "http://10.12.156.150:8000/emotion"
+				# file = "video.avi"
+				# r = requests.post(url, data=open(file, "rb"))
 
-				print("{}".format(json.dumps(r.json(),indent=4)))
-				db.emotion_2(r.json(), identify_result[0]["candidates"][0]["personId"])
-				time.sleep(1)
+				# print("{}".format(json.dumps(r.json(),indent=4)))
+				# db.emotion_2(r.json(), identify_result[0]["candidates"][0]["personId"])
+				time.sleep(2)
 
-				return False
-			
 			else:
 				faceAPI_add_face(detect_result, identify_result)
 				docomo.talk("登録されていないユーザーです")
-				time.sleep(1)
-				return False
+				time.sleep(2)
+
 
 		else:
 			docomo.talk("複数人を検知しました")
-			time.sleep(1)
-			return False
+			time.sleep(2)
+
 	else:
 		print("顔を認識できませんでした")
-		time.sleep(1)
-		return True
+		time.sleep(2)
 
 
 
-# while True:
-# 	face_coordinates = openCV_track_face(ignore_coordinates)
-# 	print(face_coordinates)
-# 	if main_process():
-# 		ignore_coordinates = face_coordinates
+while True:
+	openCV_track_face()
+	main_process()
+
 

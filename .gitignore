@@ -1,7 +1,9 @@
 # for security
-apikey.txt
+apikey.py
 face/
 cache/
+faceAPI_config
 face_image.jpg
+video.avi
 
 *.pyc 
