@@ -2,7 +2,7 @@
 # requirements
 # requests, feedparser, traceback, Pillow
 
-from Tkinter import *
+from tkinter import *
 import locale
 import threading
 import time
@@ -199,7 +199,7 @@ class Weather(Frame):
                     self.locationLbl.config(text=location2)
         except Exception as e:
             traceback.print_exc()
-            print "Error: %s. Cannot get weather." % e
+            print("Error: %s. Cannot get weather." % e)
 
         self.after(600000, self.get_weather)
 
@@ -236,7 +236,7 @@ class News(Frame):
                 headline.pack(side=TOP, anchor=W)
         except Exception as e:
             traceback.print_exc()
-            print "Error: %s. Cannot get news." % e
+            print("Error: %s. Cannot get news." % e)
 
         self.after(600000, self.get_headlines)
 
@@ -306,8 +306,8 @@ class FullscreenWindow:
         self.clock = Clock(self.topFrame)
         self.clock.pack(side=RIGHT, anchor=N, padx=100, pady=60)
         # weather
-        self.weather = Weather(self.topFrame)
-        self.weather.pack(side=LEFT, anchor=N, padx=100, pady=60)
+        # self.weather = Weather(self.topFrame)
+        # self.weather.pack(side=LEFT, anchor=N, padx=100, pady=60)
         # news
         self.news = News(self.bottomFrame)
         self.news.pack(side=LEFT, anchor=S, padx=100, pady=60)
