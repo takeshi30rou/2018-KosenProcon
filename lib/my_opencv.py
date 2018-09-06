@@ -9,12 +9,11 @@ import os
 class My_OpenCV:
 	def __init__(self, cascade_path):
 		self.c = cv2.VideoCapture(0)
+		self.cascade = cv2.CascadeClassifier(cascade_path)
 		if not self.c.isOpened():
 			print("カメラとの接続に失敗しました")
 			sys.exit()
-
-		self.cascade = cv2.CascadeClassifier(cascade_path)
-
+		
 	#顔を四角で囲む
 	def infomation(self, image, facerect):
 		color = (255, 255, 255)
@@ -61,21 +60,35 @@ class My_OpenCV:
 			personId = identify_result[0]["candidates"][0]["personId"]
 
 
-		if not os.path.isdir("./face/"+personId):
-			os.system("mkdir "+"./face/"+personId)
+			if not os.path.isdir("./face/"+personId):
+				os.system("mkdir "+"./face/"+personId)
 
-		left = detect_result[0]["faceRectangle"]["left"]
-		top = detect_result[0]["faceRectangle"]["top"]
-		width = detect_result[0]["faceRectangle"]["width"]
-		height = detect_result[0]["faceRectangle"]["height"]
+			left = detect_result[0]["faceRectangle"]["left"]
+			top = detect_result[0]["faceRectangle"]["top"]
+			width = detect_result[0]["faceRectangle"]["width"]
+			height = detect_result[0]["faceRectangle"]["height"]
 
-		path ="./face/"+personId+"/"+str(today)+""+str(time)+".jpg"
-		face_image = cv2.imread('face_image.jpg')
-		face_image = face_image[top:top+height,left:left+width]
-		cv2.imwrite(path, face_image)
-			
+			path ="./face/"+personId+"/"+str(today)+"_"+str(time)+".jpg"
+			face_image = cv2.imread('face_image.jpg')
+			face_image = face_image[top:top+height,left:left+width]
+			cv2.imwrite(path, face_image)
+				
+				
+	#表情認識ための表情を撮影する
+	def video_capture(self, frame=50):
+		fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+		video = cv2.VideoWriter('./video.avi', fourcc, 10.0, (640, 480))
+		for i in range(1, frame):
+			r, image = self.c.read()
+			img = cv2.resize(image, (640,480))
+			video.write(img)
+			cv2.putText(img, str(i/10.0), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
+			cv2.imshow("face",img)
+			cv2.waitKey(1)
+
 if __name__ == '__main__':
 	path = "../haarcascade_frontalface_default.xml"
-	MO = My_OpenCV(path)
-	r = MO.face_tracking()
-	print(r)
+	mo = My_OpenCV(path)
+	# r = mo.face_tracking()
+	# print(r)
+	mo.video_capture(frame=80)

@@ -30,6 +30,6 @@ class Docomo:
 		os.system(char)
 
 if __name__ == '__main__':
-	APIKEY = "2e6d4e6b645342562f6858396b59634d626a6a356d79424a6b43433654386f4558656d76676a7242336344"
+	APIKEY = ""
 	docomo = Docomo(APIKEY)
 	docomo.talk("テストです", "./")
