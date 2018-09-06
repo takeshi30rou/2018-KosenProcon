@@ -36,17 +36,17 @@ while True:
 	my_opencv.face_tracking()
 	result = id.identification(display_status=True)
 	if result[0]:
-		print("hello!!")
+		name = db.get_name(result[1])
+		message="{}{}さん、こんにちは".format(name["last_kana"],name["first_kana"])
+		docomo.talk(message)
+		
 	else:
 		docomo.talk(result[1])
 	
 	time.sleep(5)
 
-# #db.emotion_1(detect_result, identify_result[0]["candidates"][0]["personId"])
-# name = db.get_name(identify_result[0]["candidates"][0]["personId"])
 
-# message = name["last_kana"]+name["first_kana"]+"さん、こんにちは"
-# docomo.talk(message)
+####以下、表情認識の為の処理
 # my_opencv.faceAPI_add_face(detect_result, identify_result)
 
 # docomo.talk("5秒間お待ちください")
