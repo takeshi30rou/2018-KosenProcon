@@ -294,6 +294,7 @@ class FullscreenWindow:
 
     def __init__(self):
         self.tk = Tk()
+        self.tk.attributes("-fullscreen", True)
         self.tk.configure(background='black')
         self.topFrame = Frame(self.tk, background = 'black')
         self.bottomFrame = Frame(self.tk, background = 'black')
