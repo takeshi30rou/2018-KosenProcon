@@ -5,6 +5,7 @@ import sys
 import time
 import datetime
 import os
+import copy
 
 class My_OpenCV:
 	def __init__(self, cascade_path):
@@ -28,6 +29,7 @@ class My_OpenCV:
 		start = time.time()
 		while sum_of_detection<10 and (time.time()-start)<2:
 			r, image = self.c.read()
+			face_image = copy.deepcopy(image)#保存用に値渡しを行う
 			image = cv2.resize(image, None, fx = 0.5, fy = 0.5)#アスペクト比を維持してリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
 			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(50, 50), maxSize=(100, 100))
@@ -35,7 +37,7 @@ class My_OpenCV:
 
 			if len(facerect) > 0:
 				sum_of_detection = sum_of_detection + 1
-		self.image = image
+		self.face_image = face_image
 
 	def face_tracking(self):
 		while True:
@@ -43,7 +45,7 @@ class My_OpenCV:
 			self.detection()
 			elapsed_time = time.time() - start
 			if elapsed_time < 1:
-				cv2.imwrite("face_image.jpg", self.image)
+				cv2.imwrite("face_image.jpg", self.face_image)
 				return True
 
 	#FaceAPIレスポンスのfaceRectangleで写真を切り取る
@@ -89,6 +91,6 @@ class My_OpenCV:
 if __name__ == '__main__':
 	path = "../haarcascade_frontalface_default.xml"
 	mo = My_OpenCV(path)
-	# r = mo.face_tracking()
+	r = mo.face_tracking()
 	# print(r)
-	mo.video_capture(frame=80)
+	# mo.video_capture(frame=80)

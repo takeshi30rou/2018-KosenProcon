@@ -23,7 +23,6 @@ my_opencv = My_OpenCV(haarcascade_path)
 #個人認識を行うためのライブラリ
 from lib.identification import Identification
 id = Identification(BASE_URL,FACEAPI,img_url)
-
 # 必要なフォルダの存在を確認する
 if not os.path.isdir("./cache"):
 	os.system("mkdir ./cache")
@@ -32,12 +31,16 @@ if not os.path.isdir("./cache"):
 # 必要なフォルダの存在を確認する
 if not os.path.isdir("./face/"):
 	os.system("mkdir "+"./face/")
-
+#mainループ
 while True:
 	my_opencv.face_tracking()
-	personId = id.identification(display_status=True)
-	print(personId)
-	time.sleep(3)
+	result = id.identification(display_status=True)
+	if result[0]:
+		print("hello!!")
+	else:
+		docomo.talk(result[1])
+	
+	time.sleep(5)
 
 # #db.emotion_1(detect_result, identify_result[0]["candidates"][0]["personId"])
 # name = db.get_name(identify_result[0]["candidates"][0]["personId"])
