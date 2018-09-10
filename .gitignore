@@ -5,5 +5,7 @@ cache/
 faceAPI_config
 face_image.jpg
 video.avi
+credentials.json
+token.json
 
 *.pyc 
