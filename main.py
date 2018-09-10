@@ -31,6 +31,8 @@ if not os.path.isdir("./cache"):
 # 必要なフォルダの存在を確認する
 if not os.path.isdir("./face/"):
 	os.system("mkdir "+"./face/")
+
+
 #mainループ
 while True:
 	my_opencv.face_tracking()
@@ -39,7 +41,11 @@ while True:
 		name = db.get_name(result[1])
 		message="{}{}さん、こんにちは".format(name["last_kana"],name["first_kana"])
 		docomo.talk(message)
-		
+		while True:
+			#ここに画面の更新が入る
+			if not my_opencv.face_tracking(timeout=10):
+				docomo.talk("さようなら")
+				break
 	else:
 		docomo.talk(result[1])
 	

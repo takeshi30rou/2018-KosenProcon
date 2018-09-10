@@ -39,11 +39,15 @@ class My_OpenCV:
 				sum_of_detection = sum_of_detection + 1
 		self.face_image = face_image
 
-	def face_tracking(self):
+	def face_tracking(self,timeout=None):
+		initial_time = time.time()
 		while True:
 			start = time.time()
 			self.detection()
 			elapsed_time = time.time() - start
+			if not timeout is None:
+				if not time.time()-initial_time<timeout:
+					return False
 			if elapsed_time < 1:
 				cv2.imwrite("face_image.jpg", self.face_image)
 				return True
