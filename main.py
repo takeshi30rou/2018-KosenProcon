@@ -8,7 +8,7 @@ haarcascade_path = "./haarcascade_frontalface_default.xml"
 # westus regional Base URL
 BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/"
 #個人認識に使う写真
-img_url = './face_image.jpg'
+img_url = "./cache/face_image.jpg"
 #apikeyを取り出す
 from apikey import *
 #docomoAPIを使うためライブラリ

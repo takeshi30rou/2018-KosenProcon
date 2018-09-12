@@ -6,6 +6,8 @@ import time
 import datetime
 import os
 import copy
+face_image_path = "./cache/face_image.jpg"
+video_path = "./cache/video.avi"
 
 class My_OpenCV:
 	def __init__(self, cascade_path):
@@ -49,7 +51,7 @@ class My_OpenCV:
 				if not time.time()-initial_time<timeout:
 					return False
 			if elapsed_time < 1:
-				cv2.imwrite("face_image.jpg", self.face_image)
+				cv2.imwrite(face_image_path, self.face_image)
 				return True
 
 	#FaceAPIレスポンスのfaceRectangleで写真を切り取る
@@ -75,7 +77,7 @@ class My_OpenCV:
 			height = detect_result[0]["faceRectangle"]["height"]
 
 			path ="./face/"+personId+"/"+str(today)+"_"+str(time)+".jpg"
-			face_image = cv2.imread('face_image.jpg')
+			face_image = cv2.imread(face_image_path)
 			face_image = face_image[top:top+height,left:left+width]
 			cv2.imwrite(path, face_image)
 				
@@ -83,7 +85,7 @@ class My_OpenCV:
 	#表情認識ための表情を撮影する
 	def video_capture(self, frame=50):
 		fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
-		video = cv2.VideoWriter('./video.avi', fourcc, 10.0, (640, 480))
+		video = cv2.VideoWriter('video_path', fourcc, 10.0, (640, 480))
 		for i in range(1, frame):
 			r, image = self.c.read()
 			img = cv2.resize(image, (640,480))
