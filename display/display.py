@@ -12,7 +12,7 @@ import requests
 import json
 import traceback
 import feedparser
-import def as da
+import lib.base as da
 
 from PIL import Image, ImageTk
 from contextlib import contextmanager
