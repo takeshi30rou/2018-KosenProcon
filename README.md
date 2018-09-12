@@ -1,5 +1,6 @@
 # 2018-KosenProcon
 
+## apikey.pyを準備してください
 ## pipを使う場合の注意
 pipを使って外部ライブラリーをインストールするときは、requirements.txtに追記すること
 ## developブランチの上で作業をしてください。
