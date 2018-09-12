@@ -20,6 +20,12 @@ from contextlib import contextmanager
 import random
 import matplotlib.pyplot as plt
 
+# 必要なフォルダの存在を確認する
+import os
+if not os.path.isdir("./graph/"):
+    os.system("mkdir "+"./graph/")
+
+
 line_b = 0
 def graph(y):
     fig = plt.figure()
