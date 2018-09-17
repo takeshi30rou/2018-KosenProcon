@@ -12,19 +12,19 @@ latitude = "31.766109" # Set this if IP location lookup does not work for you (m
 longitude = "131.091977" # Set this if IP location lookup does not work for you (must be a string)
 
 icon_lookup = {
-    'clear-day': "../assets/Sun.png",  # clear sky day
-    'wind': "../assets/Wind.png",   #wind
-    'cloudy': "../assets/Cloud.png",  # cloudy day
-    'partly-cloudy-day': "../assets/PartlySunny.png",  # partly cloudy day
-    'rain': "../assets/Rain.png",  # rain day
-    'snow': "../assets/Snow.png",  # snow day
-    'snow-thin': "../assets/Snow.png",  # sleet day
-    'fog': "../assets/Haze.png",  # fog day
-    'clear-night': "../assets/Moon.png",  # clear sky night
-    'partly-cloudy-night': "../assets/PartlyMoon.png",  # scattered clouds night
-    'thunderstorm': "../assets/Storm.png",  # thunderstorm
-    'tornado': "../assests/Tornado.png",    # tornado
-    'hail': "../assests/Hail.png"  # hail
+    'clear-day': "./assets/Sun.png",  # clear sky day
+    'wind': "./assets/Wind.png",   #wind
+    'cloudy': "./assets/Cloud.png",  # cloudy day
+    'partly-cloudy-day': "./assets/PartlySunny.png",  # partly cloudy day
+    'rain': "./assets/Rain.png",  # rain day
+    'snow': "./assets/Snow.png",  # snow day
+    'snow-thin': "./assets/Snow.png",  # sleet day
+    'fog': "./assets/Haze.png",  # fog day
+    'clear-night': "./assets/Moon.png",  # clear sky night
+    'partly-cloudy-night': "./assets/PartlyMoon.png",  # scattered clouds night
+    'thunderstorm': "./assets/Storm.png",  # thunderstorm
+    'tornado': "./assests/Tornado.png",    # tornado
+    'hail': "./assests/Hail.png"  # hail
 }
 icon_lookup_2 = {
     'clear-day': 0,

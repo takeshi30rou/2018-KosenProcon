@@ -94,3 +94,35 @@ class DB:
 		finally:
 			# MySQLから切断する
 			connection.close()
+
+	def display(self,service):
+
+		# MySQLに接続する
+		connection = pymysql.connect(host='localhost',
+		                             user='pi',
+		                             password='raspberry',
+		                             db='katori',
+		                             charset='utf8',
+		                             # cursorclassを指定することで
+		                             # Select結果をtupleではなくdictionaryで受け取れる
+		                             cursorclass=pymysql.cursors.DictCursor)
+
+		try:
+			# select処理
+			with connection.cursor() as cursor:
+				sql = "SELECT `switch` FROM `display` WHERE `service`=%s"
+				#print(sql)
+				cursor.execute(sql, service)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				connection.commit()
+				# Select結果を取り出す
+				result = cursor.fetchone()
+				return result["switch"]
+		finally:
+			# MySQLから切断する
+			connection.close()
+
+if __name__ == '__main__':
+	db = DB()
+	status=db.display("weather")
+	print(status)
