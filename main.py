@@ -3,25 +3,17 @@ import os
 import time
 import requests
 
-#カスケード分類器
-haarcascade_path = "./haarcascade_frontalface_default.xml"
-# westus regional Base URL
-BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/"
-#個人認識に使う写真
-img_url = "./cache/face_image.jpg"
-#apikeyを取り出す
-from apikey import *
-#docomoAPIを使うためライブラリ
-from lib.docomo import Docomo
+haarcascade_path = "./haarcascade_frontalface_default.xml" #カスケード分類器
+BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/" # westus regional Base URL
+img_url = "./cache/face_image.jpg" #個人認識に使う写真
+from apikey import * #apikeyを取り出す
+from lib.docomo import Docomo #docomoAPIを使うためライブラリ
 docomo = Docomo(DOCOMOAPI)
-#データベースを使うためのライブラリ
-from lib.db import DB
+from lib.db import DB #データベースを使うためのライブラリ
 db = DB()
-#OpenCVを使うためのライブラリ
-from lib.my_opencv import My_OpenCV
+from lib.my_opencv import My_OpenCV #OpenCVを使うためのライブラリ
 my_opencv = My_OpenCV(haarcascade_path)
-#個人認識を行うためのライブラリ
-from lib.identification import Identification
+from lib.identification import Identification #個人認識を行うためのライブラリ
 id = Identification(BASE_URL,FACEAPI,img_url)
 # 必要なフォルダの存在を確認する
 if not os.path.isdir("./cache"):
