@@ -32,6 +32,11 @@ if not os.path.isdir("./cache"):
 if not os.path.isdir("./face/"):
 	os.system("mkdir "+"./face/")
 
+# 評価式
+def evaluation(happy,sad,neutral):
+	y=0.000980305511429404+0.0222859331905098*happy-0.0225111298759341*sad+0.0000242095263100815*neutral
+	return y
+
 
 #mainループ
 while True:
