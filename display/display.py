@@ -90,7 +90,7 @@ class Clock(Frame):
 			day_of_week2 = time.strftime('%A')
 			date2 = time.strftime(date_format)
 
-			if db.display("time"):
+			if db.display_status("time"):
 				# if time string has changed, update it
 				if day_of_week2 != self.day_of_week1:
 					self.day_of_week1 = day_of_week2

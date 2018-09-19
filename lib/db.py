@@ -2,6 +2,16 @@
 import pymysql.cursors
 
 class DB:
+	def connection(self): # MySQLに接続する
+		self.connection = pymysql.connect(host='localhost',
+		                             user='pi',
+		                             password='raspberry',
+		                             db='katori',
+		                             charset='utf8',
+		                             # cursorclassを指定することで
+		                             # Select結果をtupleではなくdictionaryで受け取れる
+		                             cursorclass=pymysql.cursors.DictCursor)
+
 	def get_name(self, personId):
 		# MySQLに接続する
 		connection = pymysql.connect(host='localhost',
@@ -95,7 +105,7 @@ class DB:
 			# MySQLから切断する
 			connection.close()
 
-	def display(self,service):
+	def display_status_check(self,service):
 
 		# MySQLに接続する
 		connection = pymysql.connect(host='localhost',
@@ -122,7 +132,20 @@ class DB:
 			# MySQLから切断する
 			connection.close()
 
+	def display_status_update(self,service,status):
+		self.connection()
+		try:
+			# select処理
+			with self.connection.cursor() as cursor:
+				sql = "UPDATE `display` SET `switch`=%s WHERE `service`=%s"
+				#print(sql)
+				cursor.execute(sql, (status, service))
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.connection.commit()
+		finally:
+			# MySQLから切断する
+			self.connection.close()
+
 if __name__ == '__main__':
 	db = DB()
-	status=db.display("weather")
-	print(status)
+	db.display_status_update("authentication",0)
