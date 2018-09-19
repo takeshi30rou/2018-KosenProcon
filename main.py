@@ -30,7 +30,6 @@ def evaluation(happy,sad,neutral):
 	return y
 
 db.display_status_update("authentication",0) "認証情報をリセットしておく"
-os.system( 'python3 ./display/display.py' )
 
 #mainループ
 while True:

@@ -20,6 +20,7 @@ from contextlib import contextmanager
 import random
 import matplotlib.pyplot as plt
 
+
 # 必要なフォルダの存在を確認する
 import os
 if not os.path.isdir("./graph/"):
@@ -90,7 +91,7 @@ class Clock(Frame):
 			day_of_week2 = time.strftime('%A')
 			date2 = time.strftime(date_format)
 
-			if db.display_status("time"):
+			if db.display_status_check("time"):
 				# if time string has changed, update it
 				if day_of_week2 != self.day_of_week1:
 					self.day_of_week1 = day_of_week2

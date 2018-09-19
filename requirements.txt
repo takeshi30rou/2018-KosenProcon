@@ -8,7 +8,11 @@ requests
 feedparser
 Pillow
 matplotlib
+cairocffi
 
 #for google calendar API
 google-api-python-client
 oauth2client
+
+#sudo apt-get install at-spi2-core
+#sudo apt install libffi-dev libffi6
