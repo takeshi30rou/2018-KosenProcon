@@ -20,7 +20,6 @@ from contextlib import contextmanager
 import random
 import matplotlib.pyplot as plt
 
-
 # 必要なフォルダの存在を確認する
 import os
 if not os.path.isdir("./graph/"):
@@ -31,6 +30,8 @@ sys.path.append("/home/pi/2018-KosenProcon/lib")
 #データベースを使うためのライブラリ
 from db import DB
 db = DB()
+
+import lib.cal
 
 line_b = 0
 def graph(y):
@@ -46,6 +47,8 @@ def graph(y):
 	ax.plot(y,color="white")
 	filename = "./graph/output.png"
 	plt.savefig(filename,facecolor="none",edgecolor="none")
+
+import time
 
 LOCALE_LOCK = threading.Lock()
 
@@ -113,7 +116,6 @@ class Clock(Frame):
 				self.dateLbl.config(text="")
 				self.timeLbl.config(text="")
 			self.timeLbl.after(200, self.tick)
-
 
 class Weather(Frame):
 	def __init__(self, parent, *args, **kwargs):
@@ -229,6 +231,47 @@ class Graph(Frame):
 		self.iconLbl.image = photo
 		self.iconLbl.pack(side=TOP, anchor=N)
 
+class CalendarEvent(Frame):
+	def __init__(self, parent, event_name="Event 1"):
+		Frame.__init__(self, parent, bg='black')
+		self.start = time.time()
+		self.elapsed_time = time.time() - self.start
+
+		self.title = '～今日の予定～'
+		self.head = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.head.pack(side=TOP, anchor=CENTER)
+		self.head.config(text=self.title)		
+
+		self.get_event()
+		self.eventNameLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.eventNameLbl.pack(side=TOP, anchor=W)
+		self.organize_event()
+
+	def organize_event(self):
+		if db.display_status_check("calendar"):
+			self.elapsed_time = time.time() - self.start
+			if self.elapsed_time>60*60:
+				self.get_event()
+				print("calendar update")
+				self.start = time.time()
+
+			self.eventNameLbl.config(text=self.cal)
+
+
+		else:
+			self.eventNameLbl.config(text="")
+		self.eventNameLbl.after(200, self.organize_event)
+
+	def get_event(self):
+		events = lib.cal.main()
+		if len(events)>0:
+			self.cal=""
+			for event in events:
+				self.cal =self.cal + "{}:{}～{}\n".format(event[0],event[1],event[2])
+		else:
+			self.cal="今日の予定はありません"
+
+
 class FullscreenWindow:
 
 	def __init__(self,clock_num,kibunnn,art,mus,kibun_now,place):
@@ -255,6 +298,8 @@ class FullscreenWindow:
 		if graph_num == 1 :
 			self.gra = Graph(self.bottomFrame)
 			self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
+		self.gra = CalendarEvent(self.bottomFrame)
+		self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
 
 	def toggle_fullscreen(self, event=None):
 		self.state = not self.state  # Just toggling the boolean
