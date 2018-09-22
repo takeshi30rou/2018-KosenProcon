@@ -9,6 +9,9 @@ import copy
 face_image_path = "./cache/face_image.jpg"
 video_path = "./cache/video.avi"
 
+from lib.db import DB #データベースを使うためのライブラリ
+db = DB()
+
 class My_OpenCV:
 	def __init__(self, cascade_path):
 		self.c = cv2.VideoCapture(0)
@@ -47,9 +50,11 @@ class My_OpenCV:
 			start = time.time()
 			self.detection()
 			elapsed_time = time.time() - start
-			if not timeout is None:
+			if not timeout is None: #timeout処理
 				if not time.time()-initial_time<timeout:
 					return False
+			if time.time()-initial_time>60*10: #自動消灯
+				db.display_status_update("everything",0)
 			if elapsed_time < 1:
 				cv2.imwrite(face_image_path, self.face_image)
 				return True
