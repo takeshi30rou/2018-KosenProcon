@@ -29,7 +29,7 @@ def evaluation(happy,sad,neutral):
 	y=0.000980305511429404+0.0222859331905098*happy-0.0225111298759341*sad+0.0000242095263100815*neutral
 	return y
 
-db.display_status_update("authentication",0) "認証情報をリセットしておく"
+db.display_status_update("authentication",0) #認証情報をリセットしておく
 
 #mainループ
 while True:

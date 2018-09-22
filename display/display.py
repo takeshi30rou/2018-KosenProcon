@@ -234,35 +234,38 @@ class Graph(Frame):
 class CalendarEvent(Frame):
 	def __init__(self, parent, event_name="Event 1"):
 		Frame.__init__(self, parent, bg='black')
+		#初期設定
 		self.start = time.time()
-		self.elapsed_time = time.time() - self.start
-
+		#タイトル
 		self.title = '～今日の予定～'
 		self.head = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.head.pack(side=TOP, anchor=CENTER)
 		self.head.config(text=self.title)		
-
+		#予定 
 		self.get_event()
 		self.eventNameLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.eventNameLbl.pack(side=TOP, anchor=W)
+		
 		self.organize_event()
 
 	def organize_event(self):
-		if db.display_status_check("calendar"):
+		#データベースを確認して、ディスプレイに表示するか決める。
+		if db.display_status_check("calendar") and db.display_status_check("authentication"):
+			self.title = '～今日の予定～'
 			self.elapsed_time = time.time() - self.start
-			if self.elapsed_time>60*60:
+			if self.elapsed_time>60*60: #APIの呼び出しを制限（指定秒ごとにカレンダーを取得）
 				self.get_event()
 				print("calendar update")
 				self.start = time.time()
+		else: #表示を消す
+			self.cal=""
+			self.title=""
+		#画面更新
+		self.eventNameLbl.config(text=self.cal)
+		self.head.config(text=self.title)
+		self.eventNameLbl.after(200, self.organize_event)　#指定mSで画面を更新する
 
-			self.eventNameLbl.config(text=self.cal)
-
-
-		else:
-			self.eventNameLbl.config(text="")
-		self.eventNameLbl.after(200, self.organize_event)
-
-	def get_event(self):
+	def get_event(self):# googlecalendarからイベントを取得し、整形する
 		events = lib.cal.main()
 		if len(events)>0:
 			self.cal=""

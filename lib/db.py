@@ -3,7 +3,7 @@ import pymysql.cursors
 
 class DB:
 	def connection(self): # MySQLに接続する
-		self.connection = pymysql.connect(host='localhost',
+		self.c = pymysql.connect(host='localhost',
 		                             user='pi',
 		                             password='raspberry',
 		                             db='katori',
@@ -136,16 +136,17 @@ class DB:
 		self.connection()
 		try:
 			# select処理
-			with self.connection.cursor() as cursor:
+			with self.c.cursor() as cursor:
 				sql = "UPDATE `display` SET `switch`=%s WHERE `service`=%s"
 				#print(sql)
 				cursor.execute(sql, (status, service))
 				# オートコミットじゃないので、明示的にコミットを書く必要がある
-				self.connection.commit()
+				self.c.commit()
 		finally:
 			# MySQLから切断する
-			self.connection.close()
+			self.c.close()
 
 if __name__ == '__main__':
 	db = DB()
+	db.display_status_update("authentication",0)
 	db.display_status_update("authentication",0)
