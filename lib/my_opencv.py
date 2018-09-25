@@ -88,15 +88,16 @@ class My_OpenCV:
 				
 				
 	#表情認識ための表情を撮影する
-	def video_capture(self, frame=50):
+	def video_capture(self, frame=50,display_status=False):
 		fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
-		video = cv2.VideoWriter('video_path', fourcc, 10.0, (640, 480))
+		video = cv2.VideoWriter(video_path, fourcc, 10.0, (640, 480))
 		for i in range(1, frame):
 			r, image = self.c.read()
 			img = cv2.resize(image, (640,480))
 			video.write(img)
 			cv2.putText(img, str(i/10.0), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
-			cv2.imshow("face",img)
+			if display_status:
+				cv2.imshow("face",img)
 			cv2.waitKey(1)
 
 if __name__ == '__main__':

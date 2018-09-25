@@ -2,6 +2,7 @@
 import os
 import time
 import requests
+import json
 
 haarcascade_path = "./haarcascade_frontalface_default.xml" #カスケード分類器
 BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/" # westus regional Base URL
@@ -31,6 +32,19 @@ def evaluation(happy,sad,neutral):
 
 db.display_status_update("authentication",0) #認証情報をリセットしておく
 
+###表情認識の為の処理
+def emotion(personId):
+	docomo.talk("5秒間お待ちください")
+	my_opencv.video_capture()
+
+	docomo.talk("完了しました")
+	url = "http://10.12.156.150:8000/emotion"
+	file = "./cache/video.avi"
+	r = requests.post(url, data=open(file, "rb"))
+
+	print("{}".format(json.dumps(r.json(),indent=4)))
+	db.emotion_2(r.json(), personId)
+
 #mainループ
 while True:
 	my_opencv.face_tracking()
@@ -39,6 +53,7 @@ while True:
 		name = db.get_name(result[1])
 		message="{}{}さん、こんにちは".format(name["last_kana"],name["first_kana"])
 		docomo.talk(message)
+		emotion(result[1])
 		while True:
 			db.display_status_update("authentication",1)
 			#ここに画面の更新が入る
@@ -50,19 +65,3 @@ while True:
 		docomo.talk(result[1])
 	
 	time.sleep(5)
-
-
-####以下、表情認識の為の処理
-# my_opencv.faceAPI_add_face(detect_result, identify_result)
-
-# docomo.talk("5秒間お待ちください")
-# my_opencv.video_capture()
-
-# docomo.talk("完了しました")
-# url = "http://10.12.156.150:8000/emotion"
-# file = "video.avi"
-# r = requests.post(url, data=open(file, "rb"))
-
-# print("{}".format(json.dumps(r.json(),indent=4)))
-# db.emotion_2(r.json(), identify_result[0]["candidates"][0]["personId"])
-# time.sleep(2)

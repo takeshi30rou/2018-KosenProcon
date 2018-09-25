@@ -263,7 +263,7 @@ class CalendarEvent(Frame):
 		#画面更新
 		self.eventNameLbl.config(text=self.cal)
 		self.head.config(text=self.title)
-		self.eventNameLbl.after(200, self.organize_event)　#指定mSで画面を更新する
+		self.eventNameLbl.after(200, self.organize_event) #指定mSで画面を更新する
 
 	def get_event(self):# googlecalendarからイベントを取得し、整形する
 		events = lib.cal.main()
