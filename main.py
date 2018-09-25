@@ -47,7 +47,7 @@ def emotion(personId):
 
 #mainループ
 while True:
-	my_opencv.face_tracking()
+	my_opencv.face_tracking(display_status=True)
 	result = id.identification(display_status=True)
 	if result[0]:
 		name = db.get_name(result[1])
@@ -57,7 +57,7 @@ while True:
 		while True:
 			db.display_status_update("authentication",1)
 			#ここに画面の更新が入る
-			if not my_opencv.face_tracking(timeout=10):
+			if not my_opencv.face_tracking(timeout=10,display_status=True):
 				docomo.talk("さようなら")
 				db.display_status_update("authentication",0)
 				break

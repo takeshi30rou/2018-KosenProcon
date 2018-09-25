@@ -38,13 +38,15 @@ class My_OpenCV:
 			image = cv2.resize(image, None, fx = 0.5, fy = 0.5)#アスペクト比を維持してリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
 			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(50, 50), maxSize=(100, 100))
-			self.infomation(image, facerect)
+			if self.display_status:
+				self.infomation(image, facerect)
 
 			if len(facerect) > 0:
 				sum_of_detection = sum_of_detection + 1
 		self.face_image = face_image
 
-	def face_tracking(self,timeout=None):
+	def face_tracking(self,timeout=None,display_status=False):
+		self.display_status = display_status
 		initial_time = time.time()
 		while True:
 			start = time.time()
