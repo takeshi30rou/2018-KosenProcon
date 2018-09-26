@@ -253,7 +253,7 @@ class CalendarEvent(Frame):
 		if db.display_status_check("calendar") and db.display_status_check("authentication"):
 			self.title = '～今日の予定～'
 			self.elapsed_time = time.time() - self.start
-			if self.elapsed_time>60*60: #APIの呼び出しを制限（指定秒ごとにカレンダーを取得）
+			if self.elapsed_time>60*3: #APIの呼び出しを制限（指定秒ごとにカレンダーを取得）
 				self.get_event()
 				print("calendar update")
 				self.start = time.time()

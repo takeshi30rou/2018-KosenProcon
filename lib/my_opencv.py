@@ -37,7 +37,7 @@ class My_OpenCV:
 			face_image = copy.deepcopy(image)#保存用に値渡しを行う
 			image = cv2.resize(image, None, fx = 0.5, fy = 0.5)#アスペクト比を維持してリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
-			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(70, 70), maxSize=(100, 100))
+			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(95, 95), maxSize=(100, 100))
 			if self.display_status:
 				self.infomation(image, facerect)
 
