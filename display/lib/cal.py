@@ -8,11 +8,14 @@ import json
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 
-calendarID = "9ga04rcfpfcme5ksn9cchqobqc@group.calendar.google.com"
-def main():
+#時間割
+defaultCalendarID = "9ga04rcfpfcme5ksn9cchqobqc@group.calendar.google.com"
+
+def main(calendarID=defaultCalendarID):
 	"""Shows basic usage of the Google Calendar API.
 	Prints the start and name of the next 10 events on the user's calendar.
 	"""
+
 	store = file.Storage('token.json')
 	creds = store.get()
 	if not creds or creds.invalid:
@@ -24,7 +27,7 @@ def main():
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 
 	events_result = service.events().list(calendarId=calendarID, timeMin=now,
-										maxResults=10, singleEvents=True,
+										maxResults=9, singleEvents=True,
 										orderBy='startTime').execute()
 	events = events_result.get('items', [])
 	
@@ -34,15 +37,24 @@ def main():
 	weekday_today = datetime.date.today().weekday() #曜日を取得する
 	cal =[]
 	for event in events:
-		start = iso_to_hm(event['start']['dateTime'])
-		end = iso_to_hm(event['end']['dateTime'])
-		if weekday_today == start[1]:
+		start = event['start'].get('dateTime', event['start'].get('date'))
+		end = event['end'].get('dateTime', event['end'].get('date'))
+		start = iso_to_hm(start)
+		end = iso_to_hm(end)
+		if not weekday_today == start[1]:
 			cal.append([event['summary'],start[0],end[0]])
+		
+		print([event['summary'],start[0],end[0]])
 	return cal
 
 def iso_to_hm(iso_str):
 	import dateutil.parser
-	time = dateutil.parser.parse(iso_str)
-	return time.strftime("%H時%M分"), time.weekday()
+	if len(iso_str) == 25:
+		time = dateutil.parser.parse(iso_str)
+		return time.strftime("%H時%M分"), time.weekday()
+	else:
+		time = dateutil.parser.parse(iso_str)
+		return time.strftime("%m月%d日"), time.weekday()
+
 if __name__ == '__main__':
 	main()

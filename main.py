@@ -31,6 +31,7 @@ def evaluation(happy,sad,neutral):
 	return y
 
 db.display_status_update("authentication",0) #認証情報をリセットしておく
+db.currentUser_update("") #認証情報をリセットしておく
 
 ###表情認識の為の処理
 def emotion(personId):
@@ -57,10 +58,12 @@ while True:
 			emotion(result[1])
 		while True:
 			db.display_status_update("authentication",1)
-			#ここに画面の更新が入る
+			db.currentUser_update(result[1])
+			#認証状態
 			if not my_opencv.face_tracking(timeout=10,display_status=True):
 				docomo.talk("さようなら")
 				db.display_status_update("authentication",0)
+				db.currentUser_update("")
 				break
 	else:
 		docomo.talk(result[1])
