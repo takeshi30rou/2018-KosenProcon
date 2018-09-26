@@ -117,7 +117,44 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
+	def currentUser_check(self):
+		# MySQLに接続する
+		self.connection()
+
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "SELECT `personId` FROM `currentUser` WHERE 1"
+				#print(sql)
+				cursor.execute(sql)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+				# Select結果を取り出す
+				result = cursor.fetchone()
+				return result
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
+	def currentUser_update(self,personId):
+		# MySQLに接続する
+		self.connection()
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "UPDATE `currentUser` SET `personId`=%s WHERE 1"
+				#print(sql)
+				cursor.execute(sql, personId)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
 if __name__ == '__main__':
 	db = DB()
 	db.display_status_update("authentication",0)
 	db.display_status_update("authentication",0)
+	db.currentUser_update("")
+	r = db.currentUser_check()
+	print(r["personId"])
