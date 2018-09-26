@@ -33,7 +33,7 @@ class Identification:
 					return True,identify_result[0]["candidates"][0]["personId"]
 					
 				else:
-					return False,"登録されていないユーザーです"
+					return True,"guest"
 			else:
 				return False,"複数人を検知しました"
 		else:

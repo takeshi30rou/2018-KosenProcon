@@ -51,9 +51,10 @@ while True:
 	result = id.identification(display_status=True)
 	if result[0]:
 		name = db.get_name(result[1])
-		message="{}{}さん、こんにちは".format(name["last_kana"],name["first_kana"])
+		message="{}{}さま、こんにちは".format(name["last_kana"],name["first_kana"])
 		docomo.talk(message)
-		emotion(result[1])
+		if not "guest" == result[1]:
+			emotion(result[1])
 		while True:
 			db.display_status_update("authentication",1)
 			#ここに画面の更新が入る
