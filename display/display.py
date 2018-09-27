@@ -243,10 +243,23 @@ class Graph(Frame):
 		image = Image.open("./graph/output.png")
 		image = image.resize((400, 300), Image.ANTIALIAS)
 		#image = image.convert('RGB')
-		photo = ImageTk.PhotoImage(image)
-		self.iconLbl = Label(self, bg='black', image=photo)
-		self.iconLbl.image = photo
+		self.photo = ImageTk.PhotoImage(image)
+
+		self.iconLbl = Label(self, bg='black', image=self.photo)
+		self.iconLbl.image = self.photo
 		self.iconLbl.pack(side=TOP, anchor=N)
+		self.display()
+
+	def display(self):
+		if db.display_status_check("history") == "1":
+			self.head.config(text=self.kibun)
+			self.iconLbl.config(image=self.photo)
+		else:
+			self.head.config(text="")
+			self.iconLbl.config(image='')
+
+		self.after(200, self.display)
+
 
 class CalendarEvent(Frame):
 	def __init__(self, parent, event_name="Event 1"):
