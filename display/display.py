@@ -109,7 +109,6 @@ class Clock(Frame):
 					self.time1 = time2
 					self.timeLbl.config(text=time2)
 			else:
-				print(1)
 				self.day_of_week1 = ""
 				self.date1 = ""
 				self.time1 = ""
@@ -216,6 +215,23 @@ class Recomend(Frame):
 		self.bun3.config(text=self.date3)
 		self.bun4.config(text=self.date4)
 		self.bun5.config(text=self.date5)
+		self.display()
+
+	def display(self):
+		if db.display_status_check("recommendation") == "1":
+			self.bun1.config(text=self.date1)
+			self.bun2.config(text=self.date2)
+			self.bun3.config(text=self.date3)
+			self.bun4.config(text=self.date4)
+			self.bun5.config(text=self.date5)
+		else:
+			self.bun1.config(text="")
+			self.bun2.config(text="")
+			self.bun3.config(text="")
+			self.bun4.config(text="")
+			self.bun5.config(text="")
+
+		self.after(200, self.display)
 
 class Graph(Frame):
 	def __init__(self, parent, *args, **kwargs):
