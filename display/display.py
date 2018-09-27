@@ -73,18 +73,20 @@ def setlocale(name): #thread proof function to work with locale
 class Clock(Frame):
 	def __init__(self, parent, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
+		self.color = "#"+db.display_status_check("color") 
 		self.date1 = ''
-		self.dateLbl = Label(self, text=self.date1, font=('Helvetica', large_text_size), fg="white", bg="black")
+		self.dateLbl = Label(self, text=self.date1, font=('Helvetica', large_text_size), fg=self.color, bg="black")
 		self.dateLbl.pack(side=TOP, anchor=W)
 		self.day_of_week1 = ''
-		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', medium_text_size), fg=self.color, bg="black")
 		self.dayOWLbl.pack(side=TOP, anchor=W)
 		self.time1 = ''
-		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size), fg="white", bg="black")
+		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size), fg=self.color, bg="black")
 		self.timeLbl.pack(side=TOP, anchor=W)
 		self.tick()
 
 	def tick(self):
+		# self.changeColor()
 		with setlocale(ui_locale):
 			if time_format == 12:
 				time2 = time.strftime('%I:%M %p') #hour in 12h format
@@ -93,21 +95,18 @@ class Clock(Frame):
 
 			day_of_week2 = time.strftime('%A')
 			date2 = time.strftime(date_format)
+			self.color = "#"+db.display_status_check("color")
 
 			if db.display_status_check("time") == "1":
-				# if time string has changed, update it
-				if day_of_week2 != self.day_of_week1:
-					self.day_of_week1 = day_of_week2
-					self.dayOWLbl.config(text=day_of_week2)
-				if date2 != self.date1:
-					self.date1 = date2
-					date2_2 = date2.split(" ")
-					date2_3 = date2_2[3]+"/"+date2_2[1][0:1]+"/"+date2_2[2][0:2]
-					#print(date2_3)
-					self.dateLbl.config(text=date2_3)
-				if time2 != self.time1:
-					self.time1 = time2
-					self.timeLbl.config(text=time2)
+
+				self.dayOWLbl.config(text=day_of_week2,fg=self.color)
+
+				date2_2 = date2.split(" ")
+				date2_3 = date2_2[3]+"/"+date2_2[1][0:1]+"/"+date2_2[2][0:2]
+				#print(date2_3)
+				self.dateLbl.config(text=date2_3,fg=self.color)
+
+				self.timeLbl.config(text=time2,fg=self.color)
 			else:
 				self.day_of_week1 = ""
 				self.date1 = ""
@@ -160,7 +159,7 @@ class Weather(Frame):
 			self.elapsed_time = time.time() - self.start
 			if self.elapsed_time>60*3: #APIの呼び出しを制限
 				self.get_weather()
-				print(111)
+				print("call darkAPI")
 				self.start = time.time() #時間をリセット
 			else:
 				self.currentlyLbl.config(text=self.currently)
