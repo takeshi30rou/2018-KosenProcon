@@ -94,7 +94,7 @@ class Clock(Frame):
 			day_of_week2 = time.strftime('%A')
 			date2 = time.strftime(date_format)
 
-			if db.display_status_check("time"):
+			if db.display_status_check("time") == "1":
 				# if time string has changed, update it
 				if day_of_week2 != self.day_of_week1:
 					self.day_of_week1 = day_of_week2
@@ -109,6 +109,7 @@ class Clock(Frame):
 					self.time1 = time2
 					self.timeLbl.config(text=time2)
 			else:
+				print(1)
 				self.day_of_week1 = ""
 				self.date1 = ""
 				self.time1 = ""
@@ -250,7 +251,7 @@ class CalendarEvent(Frame):
 
 	def organize_event(self):
 		#データベースを確認して、ディスプレイに表示するか決める。
-		if db.display_status_check("calendar") and db.display_status_check("authentication"):
+		if db.display_status_check("calendar")=="1" and db.display_status_check("authentication")=="1":
 			self.title = '～今日の予定～'
 			self.elapsed_time = time.time() - self.start
 			if self.elapsed_time>60*3: #APIの呼び出しを制限（指定秒ごとにカレンダーを取得）

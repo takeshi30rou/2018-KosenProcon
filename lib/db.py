@@ -153,8 +153,10 @@ class DB:
 
 if __name__ == '__main__':
 	db = DB()
-	db.display_status_update("authentication",0)
-	db.display_status_update("authentication",0)
-	db.currentUser_update("")
-	r = db.currentUser_check()
-	print(r["personId"])
+	# db.display_status_update("authentication",0)
+	# db.display_status_update("authentication",0)
+	# db.currentUser_update("")
+	# r = db.currentUser_check()
+	# print(r["personId"])
+	r = db.display_status_check("time")
+	print(r)
