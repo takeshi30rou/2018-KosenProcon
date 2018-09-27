@@ -120,6 +120,7 @@ class Clock(Frame):
 class Weather(Frame):
 	def __init__(self, parent, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
+		self.start = time.time() #初期設定
 		self.temperature = ''
 		self.forecast = ''
 		self.location = ''
@@ -139,7 +140,8 @@ class Weather(Frame):
 		self.forecastLbl.pack(side=TOP, anchor=E)
 		self.locationLbl = Label(self.frame2, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.locationLbl.pack(side=LEFT, anchor=E, padx=20)
-		self.get_weather()
+		self.get_weather() #事前に天気を取得する
+		self.display()
 
 	def get_ip(self):
 		try:
@@ -151,6 +153,30 @@ class Weather(Frame):
 			traceback.print_exc()
 			return "Error: %s. Cannot get ip." % e
 
+
+	def display(self):
+		#データベースを確認して、ディスプレイに表示するか決める。
+		if db.display_status_check("weather")=="1":
+			self.elapsed_time = time.time() - self.start
+			if self.elapsed_time>60*3: #APIの呼び出しを制限
+				self.get_weather()
+				print(111)
+				self.start = time.time() #時間をリセット
+			else:
+				self.currentlyLbl.config(text=self.currently)
+				self.forecastLbl.config(text=self.forecast)
+				self.temperatureLbl.config(text=self.temperature)
+				self.locationLbl.config(text=self.location)
+				self.iconLbl.config(image=self.photo)
+
+		else:
+			self.currentlyLbl.config(text="")
+			self.forecastLbl.config(text="")
+			self.temperatureLbl.config(text="")
+			self.locationLbl.config(text="")
+			self.iconLbl.config(image='')
+		self.after(200, self.display)
+
 	def get_weather(self):
 		try:
 			a,icon2,temperature2,currently2,forecast2= da.weather_setup()
@@ -161,6 +187,7 @@ class Weather(Frame):
 					image = image.resize((70, 70), Image.ANTIALIAS)
 					image = image.convert('RGB')
 					photo = ImageTk.PhotoImage(image)
+					self.photo = photo
 
 					self.iconLbl.config(image=photo)
 					self.iconLbl.image = photo
@@ -189,8 +216,6 @@ class Weather(Frame):
 		except Exception as e:
 			traceback.print_exc()
 			print ("Error: %s. Cannot get weather." % e)
-
-		self.after(60000, self.get_weather)
 
 class Recomend(Frame):
 	def __init__(self, parent,art,mus,kibun_now,place, *args, **kwargs):
@@ -307,7 +332,7 @@ class CalendarEvent(Frame):
 
 class FullscreenWindow:
 
-	def __init__(self,clock_num,kibunnn,art,mus,kibun_now,place):
+	def __init__(self,kibunnn,art,mus,kibun_now,place):
 		self.tk = Tk()
 		self.tk.configure(background='black')
 		self.topFrame = Frame(self.tk, background = 'black')
@@ -318,19 +343,19 @@ class FullscreenWindow:
 		self.toggle_fullscreen()
 		self.tk.bind("<Return>", self.toggle_fullscreen)
 		self.tk.bind("<Escape>", self.end_fullscreen)
-		# clock
-		if clock_num == 1 :
-			self.clock = Clock(self.topFrame)
-			self.clock.pack(side=LEFT, anchor=N, padx=10, pady=10)
-		if weather_num == 1 :
-			self.weather = Weather(self.topFrame)
-			self.weather.pack(side=RIGHT, anchor=N, padx=10, pady=10)
-		if recomend_num == 1 :
-			self.rec = Recomend(self.bottomFrame,art,mus,kibun_now,place)
-			self.rec.pack(side=LEFT, anchor=W, padx=10, pady=line_b)
-		if graph_num == 1 :
-			self.gra = Graph(self.bottomFrame)
-			self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
+
+		self.clock = Clock(self.topFrame)
+		self.clock.pack(side=LEFT, anchor=N, padx=10, pady=10)
+	
+		self.weather = Weather(self.topFrame)
+		self.weather.pack(side=RIGHT, anchor=N, padx=10, pady=10)
+	
+		self.rec = Recomend(self.bottomFrame,art,mus,kibun_now,place)
+		self.rec.pack(side=LEFT, anchor=W, padx=10, pady=line_b)
+	
+		self.gra = Graph(self.bottomFrame)
+		self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
+
 		self.gra = CalendarEvent(self.bottomFrame)
 		self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
 
@@ -350,12 +375,8 @@ if __name__ == '__main__':
 		j = random.randrange(10)
 		list_y.append(j)
 	kibunnn = list_y[6]
-	clock_num = 1
-	weather_num = clock_num
-	recomend_num = 1
-	graph_num = 1
 	a,b,c,d,e = da.weather_setup()
 	art,mus,kibun_now,place = da.rec_k(kibunnn,a)
 	graph(list_y)
-	w = FullscreenWindow(clock_num,kibunnn,art,mus,kibun_now,place)
+	w = FullscreenWindow(kibunnn,art,mus,kibun_now,place)
 	w.tk.mainloop()
