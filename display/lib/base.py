@@ -110,6 +110,15 @@ def rec_k(kib,wet):
             Music = "国歌"
             bs = "家でゆっくり"
     return Artist,Music,kibun_now,bs
+def get_ip(self):
+        try:
+            ip_url = "http://jsonip.com/"
+            req = requests.get(ip_url)
+            ip_json = json.loads(req.text)
+            return ip_json['ip']
+        except Exception as e:
+            traceback.print_exc()
+            return "Error: %s. Cannot get ip." % e
 
 def weather_setup():
     if latitude is None and longitude is None:

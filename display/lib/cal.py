@@ -5,6 +5,8 @@ from httplib2 import Http
 from oauth2client import file, client, tools
 import json
 
+import dateutil.parser
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 
@@ -27,34 +29,39 @@ def main(calendarID=defaultCalendarID):
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 
 	events_result = service.events().list(calendarId=calendarID, timeMin=now,
-										maxResults=9, singleEvents=True,
+										maxResults=5, singleEvents=True,
 										orderBy='startTime').execute()
 	events = events_result.get('items', [])
 	
 	#レスポンスを確認する
 	# print("{}".format(json.dumps(events,indent=4,ensure_ascii = False)))
 
-	weekday_today = datetime.date.today().weekday() #曜日を取得する
 	cal =[]
 	for event in events:
 		start = event['start'].get('dateTime', event['start'].get('date'))
 		end = event['end'].get('dateTime', event['end'].get('date'))
-		start = iso_to_hm(start)
-		end = iso_to_hm(end)
-		if not weekday_today == start[1]:
-			cal.append([event['summary'],start[0],end[0]])
-		
-		print([event['summary'],start[0],end[0]])
+		r = arrangeArrange(start, end)
+		if datetime.datetime.now().weekday() == r[2]:
+			cal.append([event['summary'],r[0],r[1]])
 	return cal
 
-def iso_to_hm(iso_str):
-	import dateutil.parser
-	if len(iso_str) == 25:
-		time = dateutil.parser.parse(iso_str)
-		return time.strftime("%H時%M分"), time.weekday()
-	else:
-		time = dateutil.parser.parse(iso_str)
-		return time.strftime("%m月%d日"), time.weekday()
+def arrangeArrange(startTime, endTime):
+	
+	start = dateutil.parser.parse(startTime)
+	end = dateutil.parser.parse(endTime)
+
+	returnStart = start.strftime("%H時%M分")
+	returnEnd = end.strftime("%H時%M分")
+	if not start.strftime("%d") == end.strftime("%d"):
+		returnStart = start.strftime("%H時%M分")
+		returnEnd = end.strftime("%d日%H時%M分")
+	if not start.strftime("%m") == end.strftime("%m"):
+		returnStart = start.strftime("%H時%M分")
+		returnEnd = end.strftime("%m月%d日%H時%M分")
+	if not start.strftime("%Y") == end.strftime("%Y"):
+		returnStart = start.strftime("%H時%M分")
+		returnEnd = end.strftime("%Y年%m月%d日%H時%M分")
+	return returnStart, returnEnd, start.weekday()
 
 if __name__ == '__main__':
 	main()
