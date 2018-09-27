@@ -69,3 +69,5 @@ while True:
 		docomo.talk(result[1])
 	
 	time.sleep(5)
+
+	# 50ee11

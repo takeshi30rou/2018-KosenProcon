@@ -33,7 +33,7 @@ db = DB()
 
 import lib.cal
 
-line_b = 0
+line_b = 50
 def graph(y):
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -56,10 +56,10 @@ ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
 time_format = 24 # 12 or 24
 date_format = "%b %d, %Y" # check python doc for strftime() for options
 news_country_code = 'us'
-xlarge_text_size = 40
-large_text_size = 25
-medium_text_size = 18
-small_text_size = 12
+xlarge_text_size = 55
+large_text_size = 45
+medium_text_size = 35
+small_text_size = 25
 
 @contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -157,7 +157,7 @@ class Weather(Frame):
 		#データベースを確認して、ディスプレイに表示するか決める。
 		if db.display_status_check("weather")=="1":
 			self.elapsed_time = time.time() - self.start
-			if self.elapsed_time>60*3: #APIの呼び出しを制限
+			if self.elapsed_time>60*10: #APIの呼び出しを制限
 				self.get_weather()
 				print("call darkAPI")
 				self.start = time.time() #時間をリセット
@@ -220,19 +220,19 @@ class Recomend(Frame):
 	def __init__(self, parent,art,mus,kibun_now,place, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
 		self.date1 = '今のあなたの気分は...'
-		self.bun1 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.bun1 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.bun1.pack(side=TOP, anchor=W)
 		self.date2 = '"'+kibun_now+'" みたいなので'
-		self.bun2 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.bun2 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.bun2.pack(side=TOP, anchor=S)
 		self.date3 = '"'+art+'"の"'+mus+'"'
-		self.bun3 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.bun3 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.bun3.pack(side=TOP, anchor=W)
 		self.date4 = 'を聴きながら'+place
-		self.bun4 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.bun4 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.bun4.pack(side=TOP, anchor=W)
 		self.date5 = 'で過ごしてはいかがでしょうか？'
-		self.bun5 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.bun5 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.bun5.pack(side=TOP, anchor=W)
 		self.bun1.config(text=self.date1)
 		self.bun2.config(text=self.date2)
@@ -261,7 +261,7 @@ class Graph(Frame):
 	def __init__(self, parent, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
 		self.kibun = '～過去1週間のあなたの気分～'
-		self.head = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+		self.head = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.head.pack(side=TOP, anchor=N)
 		self.head.config(text=self.kibun)
 		image = Image.open("./graph/output.png")
@@ -337,7 +337,7 @@ class FullscreenWindow:
 		self.topFrame = Frame(self.tk, background = 'black')
 		self.bottomFrame = Frame(self.tk, background = 'black')
 		self.topFrame.pack(side = TOP, fill=BOTH, expand = YES)
-		self.bottomFrame.pack(side = BOTTOM, fill=BOTH, expand = YES)
+		self.bottomFrame.pack(side = TOP, fill=BOTH, expand = YES)
 		self.state = False
 		self.toggle_fullscreen()
 		self.tk.bind("<Return>", self.toggle_fullscreen)
@@ -350,10 +350,10 @@ class FullscreenWindow:
 		self.weather.pack(side=RIGHT, anchor=N, padx=10, pady=10)
 	
 		self.rec = Recomend(self.bottomFrame,art,mus,kibun_now,place)
-		self.rec.pack(side=LEFT, anchor=W, padx=10, pady=line_b)
+		self.rec.pack(side=LEFT, anchor=N, padx=10, pady=line_b)
 	
 		self.gra = Graph(self.bottomFrame)
-		self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
+		self.gra.pack(side = RIGHT, anchor=N, padx=10, pady=line_b)
 
 		self.gra = CalendarEvent(self.bottomFrame)
 		self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
