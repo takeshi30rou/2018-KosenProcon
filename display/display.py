@@ -75,14 +75,18 @@ class Clock(Frame):
 		Frame.__init__(self, parent, bg='black')
 		self.color = "#"+db.display_status_check("color") 
 		self.date1 = ''
-		self.dateLbl = Label(self, text=self.date1, font=('Helvetica', large_text_size), fg=self.color, bg="black")
+		self.dateLbl = Label(self, text=self.date1, font=('Helvetica', xlarge_text_size,"bold"), fg=self.color, bg="black")
 		self.dateLbl.pack(side=TOP, anchor=W)
-		self.day_of_week1 = ''
-		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', medium_text_size), fg=self.color, bg="black")
-		self.dayOWLbl.pack(side=TOP, anchor=W)
 		self.time1 = ''
-		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size), fg=self.color, bg="black")
+		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size, "bold"), fg=self.color, bg="black")
 		self.timeLbl.pack(side=TOP, anchor=W)
+		self.day_of_week1 = ''
+#		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', medium_text_size,"bold"), fg=self.color, bg="black")
+		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', large_text_size), fg=self.color, bg="black")
+		self.dayOWLbl.pack(side=TOP, anchor=W)
+#		self.time1 = ''
+#		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size, "bold"), fg=self.color, bg="black")
+#		self.timeLbl.pack(side=TOP, anchor=W)
 		self.tick()
 
 	def tick(self):
@@ -129,15 +133,17 @@ class Weather(Frame):
 		self.degreeFrm.pack(side=TOP, anchor=E)
 		self.frame2 = Frame(self, bg="black")
 		self.frame2.pack(side=TOP, anchor=E)
-		self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', xlarge_text_size), fg="white", bg="black")
+		self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', xlarge_text_size,"bold"), fg="white", bg="black")
 		self.temperatureLbl.pack(side=LEFT, anchor=N)
 		self.iconLbl = Label(self.degreeFrm, bg="black")
 		self.iconLbl.pack(side=LEFT, anchor=N, padx=20)
-		self.currentlyLbl = Label(self.frame2, font=('Helvetica', medium_text_size), fg="white", bg="black")
+#		self.currentlyLbl = Label(self.frame2, font=('Helvetica', medium_text_size,"bold"), fg="white", bg="black")
+		self.currentlyLbl = Label(self.frame2, font=('Helvetica', large_text_size), fg="white", bg="black")
 		self.currentlyLbl.pack(side=LEFT, anchor=W)
 		self.forecastLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.forecastLbl.pack(side=TOP, anchor=E)
-		self.locationLbl = Label(self.frame2, font=('Helvetica', medium_text_size), fg="white", bg="black")
+#		self.locationLbl = Label(self.frame2, font=('Helvetica', medium_text_size,"bold"), fg="white", bg="black")
+		self.locationLbl = Label(self.frame2, font=('Helvetica', large_text_size), fg="white", bg="black")
 		self.locationLbl.pack(side=LEFT, anchor=E, padx=20)
 		self.get_weather() #事前に天気を取得する
 		self.display()
@@ -220,19 +226,19 @@ class Recomend(Frame):
 	def __init__(self, parent,art,mus,kibun_now,place, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
 		self.date1 = '今のあなたの気分は...'
-		self.bun1 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.bun1 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.bun1.pack(side=TOP, anchor=W)
 		self.date2 = '"'+kibun_now+'" みたいなので'
-		self.bun2 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.bun2 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.bun2.pack(side=TOP, anchor=S)
 		self.date3 = '"'+art+'"の"'+mus+'"'
-		self.bun3 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.bun3 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.bun3.pack(side=TOP, anchor=W)
 		self.date4 = 'を聴きながら'+place
-		self.bun4 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.bun4 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.bun4.pack(side=TOP, anchor=W)
 		self.date5 = 'で過ごしてはいかがでしょうか？'
-		self.bun5 = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.bun5 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
 		self.bun5.pack(side=TOP, anchor=W)
 		self.bun1.config(text=self.date1)
 		self.bun2.config(text=self.date2)
