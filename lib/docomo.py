@@ -2,6 +2,8 @@
 import os
 import requests
 import json
+import time
+import subprocess
 
 class Docomo:
 	def __init__(self, APIKEY):
@@ -22,14 +24,26 @@ class Docomo:
 			}
 
 			r = requests.post(url, data=json.dumps(params))
-			print(r.status_code)
-			wav = r.content
-			with open(path+message+".wav","wb") as fout:
-				fout.write(wav)
-		char = "aplay {}{}.wav".format(path, message)
-		os.system(char)
+			if r.status_code == requests.codes.ok:
+				wav = r.content
+				with open(path+message+".wav","wb") as fout:
+					fout.write(wav)
+
+		if os.path.isfile(path+message+".wav"): #APIでエラーが発生し、音声ファイルが生成されないときのため
+			char = "aplay {}{}.wav".format(path, message)
+			# subprocess.Popen(char, shell=True)
+			os.system(char)
+
+	def talk_clock(self, path="./cache/audio/"):
+		hour_minute= time.strftime('ただいま%H:%Mです')
+		self.talk(hour_minute, path)
+
+
 
 if __name__ == '__main__':
-	APIKEY = ""
-	docomo = Docomo(APIKEY)
-	docomo.talk("テストです", "./")
+	import sys
+	sys.path.append("/home/pi/2018-KosenProcon/")
+	from apikey import *
+	docomo = Docomo(DOCOMOAPI)
+	# docomo.talk("テストです", "./")
+	docomo.talk_clock("./")

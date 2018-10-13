@@ -37,7 +37,7 @@ class My_OpenCV:
 			face_image = copy.deepcopy(image)#保存用に値渡しを行う
 			image = cv2.resize(image, None, fx = 0.5, fy = 0.5)#アスペクト比を維持してリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
-			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(95, 95), maxSize=(100, 100))
+			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(90, 90), maxSize=(100, 100))
 			if self.display_status:
 				self.infomation(image, facerect)
 
@@ -55,7 +55,7 @@ class My_OpenCV:
 			if not timeout is None: #timeout処理
 				if not time.time()-initial_time<timeout:
 					return False
-			if time.time()-initial_time>60*10: #自動消灯
+			if time.time()-initial_time>30: #自動消灯
 				db.display_status_update("everything",0)
 			if elapsed_time < 1:
 				cv2.imwrite(face_image_path, self.face_image)

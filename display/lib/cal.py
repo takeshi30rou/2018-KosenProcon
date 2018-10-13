@@ -41,8 +41,9 @@ def main(calendarID=defaultCalendarID):
 		start = event['start'].get('dateTime', event['start'].get('date'))
 		end = event['end'].get('dateTime', event['end'].get('date'))
 		r = arrangeArrange(start, end)
-		if datetime.datetime.now().weekday() == r[2]:
-			cal.append([event['summary'],r[0],r[1]])
+		# if datetime.datetime.now().weekday() == r[2]:
+		# 	cal.append([event['summary'],r[0],r[1]])
+		cal.append([event['summary'],r[0],r[1]])
 	return cal
 
 def arrangeArrange(startTime, endTime):

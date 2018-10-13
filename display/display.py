@@ -1,4 +1,4 @@
-# smartmirror.py
+# smRecomend.artmirror.py
 # requirements
 # requests, feedparser, traceback, Pillow
 # coding: UTF-8
@@ -13,7 +13,7 @@ import json
 import traceback
 import feedparser
 import lib.base as da
-
+import copy
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 
@@ -33,29 +33,21 @@ db = DB()
 
 import lib.cal
 
-line_b = 50
-def graph(y):
-	fig = plt.figure()
-	ax = fig.add_subplot(111)
-	ax.patch.set_facecolor('none')
-	ax.spines["right"].set_color("none")
-	ax.spines["top"].set_color("none")
-	ax.spines["left"].set_color("white")
-	ax.spines["bottom"].set_color("white")
-	ax.tick_params(axis = 'x', colors ='white')
-	ax.tick_params(axis = 'y', colors = 'white')
-	ax.plot(y,color="white")
-	filename = "./graph/output.png"
-	plt.savefig(filename,facecolor="none",edgecolor="none")
+#グラフが非表示の際のグラフデータ作成
+if not os.path.isfile("./graph/black.png"):
+	#グラフ作成関数(y軸座標データ,ファイル名,グラフの色)
+	da.graph([1,1,1,1,1,1],"black.png","black")
 
+text_color = "#ffffff" #デフォルトの文字、その他の色
+graph_size = (950,425)
 import time
 
 LOCALE_LOCK = threading.Lock()
 
 ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
-time_format = 24 # 12 or 24
+time_format = 24 # 時間表示設定
 date_format = "%b %d, %Y" # check python doc for strftime() for options
-news_country_code = 'us'
+#文字サイズ設定
 xlarge_text_size = 55
 large_text_size = 45
 medium_text_size = 35
@@ -73,56 +65,44 @@ def setlocale(name): #thread proof function to work with locale
 class Clock(Frame):
 	def __init__(self, parent, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
-		self.color = "#"+db.display_status_check("color") 
-		self.date1 = ''
-		self.dateLbl = Label(self, text=self.date1, font=('Helvetica', xlarge_text_size,"bold"), fg=self.color, bg="black")
-		self.dateLbl.pack(side=TOP, anchor=W)
-		self.time1 = ''
-		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size, "bold"), fg=self.color, bg="black")
-		self.timeLbl.pack(side=TOP, anchor=W)
-		self.day_of_week1 = ''
-#		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', medium_text_size,"bold"), fg=self.color, bg="black")
-		self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', large_text_size), fg=self.color, bg="black")
-		self.dayOWLbl.pack(side=TOP, anchor=W)
-#		self.time1 = ''
-#		self.timeLbl = Label(self, font=('Helvetica', xlarge_text_size, "bold"), fg=self.color, bg="black")
-#		self.timeLbl.pack(side=TOP, anchor=W)
+		#self.color = "#"+db.display_status_check("color") 
+		self.topFrm = Frame(self, bg="black")
+		self.topFrm.pack(side=TOP, anchor=W)
+		self.dateLbl = Label(self.topFrm, font=('Helvetica', xlarge_text_size,"bold"), bg="black")
+		self.dateLbl.pack(side=LEFT, anchor=W)
+		self.dayOWLbl = Label(self.topFrm, font=('Helvetica', large_text_size), bg="black")
+		self.dayOWLbl.pack(side=RIGHT, anchor=E)
+		self.timeLbl = Label(self, font=('Helvetica', 80, "bold"), bg="black")
+		self.timeLbl.pack(side=LEFT, anchor=N)
 		self.tick()
 
 	def tick(self):
-		# self.changeColor()
 		with setlocale(ui_locale):
 			if time_format == 12:
 				time2 = time.strftime('%I:%M %p') #hour in 12h format
 			else:
 				time2 = time.strftime('%H:%M') #hour in 24h format
-
 			day_of_week2 = time.strftime('%A')
 			date2 = time.strftime(date_format)
 			self.color = "#"+db.display_status_check("color")
-
-			if db.display_status_check("time") == "1":
-
+			if ((db.display_status_check("time") == "1") and (db.display_status_check("everything")=="1")):
 				self.dayOWLbl.config(text=day_of_week2,fg=self.color)
-
 				date2_2 = date2.split(" ")
-				date2_3 = date2_2[3]+"/"+date2_2[1][0:1]+"/"+date2_2[2][0:2]
-				#print(date2_3)
+				date2_3 = date2_2[0][0:2]+"/"+date2_2[1][0:2]+" "
 				self.dateLbl.config(text=date2_3,fg=self.color)
-
 				self.timeLbl.config(text=time2,fg=self.color)
 			else:
-				self.day_of_week1 = ""
-				self.date1 = ""
-				self.time1 = ""
 				self.dayOWLbl.config(text="")
 				self.dateLbl.config(text="")
 				self.timeLbl.config(text="")
 			self.timeLbl.after(200, self.tick)
 
 class Weather(Frame):
+	a,icon2,temperature2,currently2,forecast2= da.weather_setup()
+	db.weather_update("ミヤコノジョウ",currently2,temperature2)
 	def __init__(self, parent, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
+		self.old_colors = "#ffffff"
 		self.start = time.time() #初期設定
 		self.temperature = ''
 		self.forecast = ''
@@ -133,17 +113,15 @@ class Weather(Frame):
 		self.degreeFrm.pack(side=TOP, anchor=E)
 		self.frame2 = Frame(self, bg="black")
 		self.frame2.pack(side=TOP, anchor=E)
-		self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', xlarge_text_size,"bold"), fg="white", bg="black")
+		self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', xlarge_text_size,"bold"), bg="black")
 		self.temperatureLbl.pack(side=LEFT, anchor=N)
 		self.iconLbl = Label(self.degreeFrm, bg="black")
 		self.iconLbl.pack(side=LEFT, anchor=N, padx=20)
-#		self.currentlyLbl = Label(self.frame2, font=('Helvetica', medium_text_size,"bold"), fg="white", bg="black")
-		self.currentlyLbl = Label(self.frame2, font=('Helvetica', large_text_size), fg="white", bg="black")
+		self.currentlyLbl = Label(self.frame2, font=('Helvetica', large_text_size), bg="black")
 		self.currentlyLbl.pack(side=LEFT, anchor=W)
-		self.forecastLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+		self.forecastLbl = Label(self, font=('Helvetica', 15), bg="black")
 		self.forecastLbl.pack(side=TOP, anchor=E)
-#		self.locationLbl = Label(self.frame2, font=('Helvetica', medium_text_size,"bold"), fg="white", bg="black")
-		self.locationLbl = Label(self.frame2, font=('Helvetica', large_text_size), fg="white", bg="black")
+		self.locationLbl = Label(self.frame2, font=('Helvetica', large_text_size), bg="black")
 		self.locationLbl.pack(side=LEFT, anchor=E, padx=20)
 		self.get_weather() #事前に天気を取得する
 		self.display()
@@ -161,18 +139,25 @@ class Weather(Frame):
 
 	def display(self):
 		#データベースを確認して、ディスプレイに表示するか決める。
-		if db.display_status_check("weather")=="1":
+		if ((db.display_status_check("weather")=="1") and (db.display_status_check("everything")=="1")):
+			text_colors = "#"+db.display_status_check("color")
 			self.elapsed_time = time.time() - self.start
 			if self.elapsed_time>60*10: #APIの呼び出しを制限
 				self.get_weather()
 				print("call darkAPI")
 				self.start = time.time() #時間をリセット
-			else:
-				self.currentlyLbl.config(text=self.currently)
-				self.forecastLbl.config(text=self.forecast)
-				self.temperatureLbl.config(text=self.temperature)
-				self.locationLbl.config(text=self.location)
-				self.iconLbl.config(image=self.photo)
+			if text_colors != self.old_colors:
+				self.image_2 = da.image_change(self.image,text_colors)
+				image_2 = self.image_2.resize((xlarge_text_size*2, xlarge_text_size*2), Image.ANTIALIAS)
+				image_2 = image_2.convert('RGB')
+				photo = ImageTk.PhotoImage(image_2)
+				self.photo = photo
+				self.old_colors = text_color
+			self.currentlyLbl.config(text=self.currently, fg=text_colors)
+			self.forecastLbl.config(text=self.forecast, fg=text_colors)
+			self.temperatureLbl.config(text=self.temperature, fg=text_colors)
+			self.locationLbl.config(text=self.location, fg=text_colors)
+			self.iconLbl.config(image=self.photo)
 
 		else:
 			self.currentlyLbl.config(text="")
@@ -184,18 +169,16 @@ class Weather(Frame):
 
 	def get_weather(self):
 		try:
-			a,icon2,temperature2,currently2,forecast2= da.weather_setup()
+			Weather.a,icon2,temperature2,currently2,forecast2= da.weather_setup()
+			db.weather_update("ミヤコノジョウ",currently2,temperature2)
 			if icon2 is not None:
 				if self.icon != icon2:
 					self.icon = icon2
-					image = Image.open(icon2)
-					image = image.resize((70, 70), Image.ANTIALIAS)
-					image = image.convert('RGB')
-					photo = ImageTk.PhotoImage(image)
+					self.image = Image.open(icon2)
+					image_2 = self.image.resize((xlarge_text_size*2, xlarge_text_size*2), Image.ANTIALIAS)
+					image_2 = image_2.convert('RGB')
+					photo = ImageTk.PhotoImage(image_2)
 					self.photo = photo
-
-					self.iconLbl.config(image=photo)
-					self.iconLbl.image = photo
 			else:
 				# remove image
 				self.iconLbl.config(image='')
@@ -204,92 +187,108 @@ class Weather(Frame):
 
 			if self.currently != currently2:
 				self.currently = currently2
-				self.currentlyLbl.config(text=currently2)
 			if self.forecast != forecast2:
 				self.forecast = forecast2
-				self.forecastLbl.config(text=forecast2)
 			if self.temperature != temperature2:
 				self.temperature = temperature2
-				self.temperatureLbl.config(text=temperature2)
 			if self.location != location2:
 				if location2 == ", ":
 					self.location = "Cannot Pinpoint Location"
-					self.locationLbl.config(text="Cannot Pinpoint Location")
+					self.locationLbl.config(text="Cannot Pinpoint Location", fg=text_color)
 				else:
 					self.location = location2
-					self.locationLbl.config(text=location2)
+					self.locationLbl.config(text=location2, fg=text_color)
 		except Exception as e:
 			traceback.print_exc()
 			print ("Error: %s. Cannot get weather." % e)
 
-class Recomend(Frame):
-	def __init__(self, parent,art,mus,kibun_now,place, *args, **kwargs):
-		Frame.__init__(self, parent, bg='black')
-		self.date1 = '今のあなたの気分は...'
-		self.bun1 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-		self.bun1.pack(side=TOP, anchor=W)
-		self.date2 = '"'+kibun_now+'" みたいなので'
-		self.bun2 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-		self.bun2.pack(side=TOP, anchor=S)
-		self.date3 = '"'+art+'"の"'+mus+'"'
-		self.bun3 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-		self.bun3.pack(side=TOP, anchor=W)
-		self.date4 = 'を聴きながら'+place
-		self.bun4 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-		self.bun4.pack(side=TOP, anchor=W)
-		self.date5 = 'で過ごしてはいかがでしょうか？'
-		self.bun5 = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-		self.bun5.pack(side=TOP, anchor=W)
-		self.bun1.config(text=self.date1)
-		self.bun2.config(text=self.date2)
-		self.bun3.config(text=self.date3)
-		self.bun4.config(text=self.date4)
-		self.bun5.config(text=self.date5)
-		self.display()
-
-	def display(self):
-		if db.display_status_check("recommendation") == "1":
-			self.bun1.config(text=self.date1)
-			self.bun2.config(text=self.date2)
-			self.bun3.config(text=self.date3)
-			self.bun4.config(text=self.date4)
-			self.bun5.config(text=self.date5)
-		else:
-			self.bun1.config(text="")
-			self.bun2.config(text="")
-			self.bun3.config(text="")
-			self.bun4.config(text="")
-			self.bun5.config(text="")
-
-		self.after(200, self.display)
-
 class Graph(Frame):
+	kibun = 0
 	def __init__(self, parent, *args, **kwargs):
 		Frame.__init__(self, parent, bg='black')
+		self.login_flag = 1
+		self.old_personID = None
+		self.old_color = "#ffffff"
 		self.kibun = '～過去1週間のあなたの気分～'
 		self.head = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
 		self.head.pack(side=TOP, anchor=N)
 		self.head.config(text=self.kibun)
-		image = Image.open("./graph/output.png")
-		image = image.resize((400, 300), Image.ANTIALIAS)
-		#image = image.convert('RGB')
-		self.photo = ImageTk.PhotoImage(image)
-
-		self.iconLbl = Label(self, bg='black', image=self.photo)
-		self.iconLbl.image = self.photo
+		black_image = Image.open("./graph/black.png")
+		black_image = black_image.resize(graph_size, Image.ANTIALIAS)
+		self.black_photo = ImageTk.PhotoImage(black_image)
+		self.iconLbl = Label(self, bg='black')
 		self.iconLbl.pack(side=TOP, anchor=N)
 		self.display()
 
 	def display(self):
-		if db.display_status_check("history") == "1":
-			self.head.config(text=self.kibun)
+		if ((db.display_status_check("history") == "1") and (db.display_status_check("everything")=="1") and (db.display_status_check("analysis_end")=="1")):
+			text_color = "#"+db.display_status_check("color")
+			time.sleep(6.2)
+			personID = db.currentUser_check()["personId"]
+			print(personID)
+			if personID == "":
+				self.photo = self.black_photo
+				self.kibun = ""
+			else:
+				if ((personID != self.old_personID) or (self.login_flag == 0)):  
+					Graph.kibun,datetime = da.emotion_data(personID)
+					print(Graph.kibun)
+					Recomend.art,Recomend.mus,Recomend.kibun_now,Recomend.place = da.rec_k(Graph.kibun[6],Weather.a)
+					da.graph(datetime,Graph.kibun,"output.png","#ffffff")
+					global image_n
+					image_n = Image.open("./graph/output.png")
+					self.login_flag = 1
+					self.old_personID = personID
+					self.old_color = "#ffffff"
+
+			if text_color != self.old_color:
+				image_n = da.image_change(image_n,text_color)
+				self.old_color = text_color
+			self.image_re = image_n.resize(graph_size, Image.ANTIALIAS)
+			self.photo = ImageTk.PhotoImage(self.image_re)
+			self.head.config(text=self.kibun, fg=text_color)
 			self.iconLbl.config(image=self.photo)
 		else:
 			self.head.config(text="")
-			self.iconLbl.config(image='')
+			self.iconLbl.config(image=self.black_photo)
+			self.login_flag = 0
 
 		self.after(200, self.display)
+class Recomend(Frame):
+	art,mus,kibun_now,place = da.rec_k(Graph.kibun,Weather.a)
+	def __init__(self, parent, *args, **kwargs):
+		Frame.__init__(self, parent, bg='black')
+		Frame.__init__(self, parent, bg='black')
+		self.date1 = '今のあなたの気分は...'
+		self.bun1 = Label(self, font=('Helvetica', small_text_size), fg=text_color, bg="black")
+		self.bun1.pack(side=BOTTOM, anchor=E)
+		self.date2 = '"'+Recomend.kibun_now+'" みたいなので'
+		self.bun2 = Label(self, font=('Helvetica', small_text_size), fg=text_color, bg="black")
+		self.bun2.pack(side=BOTTOM, anchor=N)
+		self.date3 = '"'+Recomend.art+'"の"'+Recomend.mus+'"を聴きながら'+Recomend.place
+		self.bun3 = Label(self, font=('Helvetica', small_text_size), fg=text_color, bg="black")
+		self.bun3.pack(side=BOTTOM, anchor=N)
+		self.date4 = '過ごしてはいかがでしょうか？'
+		self.bun4 = Label(self, font=('Helvetica', small_text_size), fg=text_color, bg="black")
+		self.bun4.pack(side=BOTTOM, anchor=W)
+		self.display()
 
+	def display(self):
+		if ((db.display_status_check("recommendation") == "1") and (db.display_status_check("everything")=="1") and (db.display_status_check("analysis_end")=="1")):
+			text_color = "#"+db.display_status_check("color")
+			self.date3 = '"'+Recomend.art+'"の"'+Recomend.mus+'"を聴きながら'+Recomend.place
+			self.date2 = '"'+Recomend.kibun_now+'" みたいなので'
+			self.bun1.config(text=self.date4, fg=text_color)
+			self.bun2.config(text=self.date3, fg=text_color)
+			self.bun3.config(text=self.date2, fg=text_color)
+			self.bun4.config(text=self.date1, fg=text_color)
+		else:
+			self.bun4.config(text="")
+			self.bun3.config(text="")
+			self.bun2.config(text="")
+			self.bun1.config(text="")
+
+		self.after(200, self.display)
 
 class CalendarEvent(Frame):
 	def __init__(self, parent, event_name="Event 1"):
@@ -297,32 +296,34 @@ class CalendarEvent(Frame):
 		#初期設定
 		self.start = time.time()
 		#タイトル
-		self.title = '～今日の予定～'
+		self.title = '   ～今日の予定～'
 		self.head = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-		self.head.pack(side=TOP, anchor=CENTER)
+		self.head.pack(side=TOP, anchor=N)
 		self.head.config(text=self.title)		
 		#予定 
 		self.get_event()
 		self.eventNameLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
-		self.eventNameLbl.pack(side=TOP, anchor=W)
+		self.eventNameLbl.pack(side=TOP, anchor=N)
 		
 		self.organize_event()
 
 	def organize_event(self):
 		#データベースを確認して、ディスプレイに表示するか決める。
-		if db.display_status_check("calendar")=="1" and db.display_status_check("authentication")=="1":
+		if ((db.display_status_check("calendar")=="1") and (db.display_status_check("authentication")=="1") and (db.display_status_check("everything")=="1")):
+			text_color = "#"+db.display_status_check("color")
 			self.title = '～今日の予定～'
 			self.elapsed_time = time.time() - self.start
 			if self.elapsed_time>60*3: #APIの呼び出しを制限（指定秒ごとにカレンダーを取得）
 				self.get_event()
 				print("calendar update")
 				self.start = time.time()
+			self.eventNameLbl.config(text=self.cal, fg=text_color)
+			self.head.config(text=self.title, fg=text_color)
+
 		else: #表示を消す
-			self.cal=""
-			self.title=""
-		#画面更新
-		self.eventNameLbl.config(text=self.cal)
-		self.head.config(text=self.title)
+			self.eventNameLbl.config(text="")
+			self.head.config(text="")
+
 		self.eventNameLbl.after(200, self.organize_event) #指定mSで画面を更新する
 
 	def get_event(self):# googlecalendarからイベントを取得し、整形する
@@ -337,13 +338,17 @@ class CalendarEvent(Frame):
 
 class FullscreenWindow:
 
-	def __init__(self,kibunnn,art,mus,kibun_now,place):
+	def __init__(self):
 		self.tk = Tk()
 		self.tk.configure(background='black')
 		self.topFrame = Frame(self.tk, background = 'black')
+		self.subtopFrame = Frame(self.tk, background = 'black')
 		self.bottomFrame = Frame(self.tk, background = 'black')
+		self.botFrame = Frame(self.tk, background = 'black')
 		self.topFrame.pack(side = TOP, fill=BOTH, expand = YES)
-		self.bottomFrame.pack(side = TOP, fill=BOTH, expand = YES)
+		self.subtopFrame.pack(side = TOP, fill=BOTH, expand = YES)
+		self.bottomFrame.pack(side = BOTTOM, fill=BOTH, expand = YES)
+		self.botFrame.pack(side = BOTTOM, fill=BOTH, expand = YES)
 		self.state = False
 		self.toggle_fullscreen()
 		self.tk.bind("<Return>", self.toggle_fullscreen)
@@ -355,14 +360,14 @@ class FullscreenWindow:
 		self.weather = Weather(self.topFrame)
 		self.weather.pack(side=RIGHT, anchor=N, padx=10, pady=10)
 	
-		self.rec = Recomend(self.bottomFrame,art,mus,kibun_now,place)
-		self.rec.pack(side=LEFT, anchor=N, padx=10, pady=line_b)
-	
 		self.gra = Graph(self.bottomFrame)
-		self.gra.pack(side = RIGHT, anchor=N, padx=10, pady=line_b)
+		self.gra.pack(side = TOP, anchor=CENTER, padx=10, pady=0)
 
-		self.gra = CalendarEvent(self.bottomFrame)
-		self.gra.pack(side = RIGHT, anchor=E, padx=10, pady=line_b)
+		self.rec = Recomend(self.botFrame)
+		self.rec.pack(side=TOP, anchor=CENTER, padx=10, pady=0)
+
+		self.gra = CalendarEvent(self.subtopFrame)
+		self.gra.pack(side = TOP, anchor=N, padx=10, pady=0)
 
 	def toggle_fullscreen(self, event=None):
 		self.state = not self.state  # Just toggling the boolean
@@ -375,13 +380,5 @@ class FullscreenWindow:
 		return "break"
 
 if __name__ == '__main__':
-	list_y = []
-	for i in range(7):
-		j = random.randrange(10)
-		list_y.append(j)
-	kibunnn = list_y[6]
-	a,b,c,d,e = da.weather_setup()
-	art,mus,kibun_now,place = da.rec_k(kibunnn,a)
-	graph(list_y)
-	w = FullscreenWindow(kibunnn,art,mus,kibun_now,place)
+	w = FullscreenWindow()
 	w.tk.mainloop()

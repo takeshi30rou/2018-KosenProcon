@@ -102,6 +102,44 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
+	def emotion_status_check(self,userID):
+		# MySQLに接続する
+		self.connection()
+
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "SELECT `angry` FROM `emotion2` WHERE `personId`=%s ORDER BY `datetime` DESC"
+				#print(sql)
+				cursor.execute(sql,userID)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+				# Select結果を取り出す
+				result = cursor.fetchall()
+				return result
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
+	def emotion_datetime_status_check(self,userID):
+		# MySQLに接続する
+		self.connection()
+
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "SELECT `datetime` FROM `emotion2` WHERE `personId`=%s ORDER BY `datetime` DESC"
+				#print(sql)
+				cursor.execute(sql,userID)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+				# Select結果を取り出す
+				result = cursor.fetchall()
+				return result#["disgust"]
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
 	def display_status_update(self,service,status):
 		# MySQLに接続する
 		self.connection()
@@ -151,6 +189,41 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
+	def weather_check(self):
+		# MySQLに接続する
+		self.connection()
+
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "SELECT `place`, `weather`, `temperature` FROM `weather` WHERE 1"
+				#print(sql)
+				cursor.execute(sql)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+				# Select結果を取り出す
+				result = cursor.fetchone()
+				return result
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
+	def weather_update(self,place,weather,temperature):
+		# MySQLに接続する
+		self.connection()
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "UPDATE `weather` SET `place`=%s,`weather`=%s,`temperature`=%s WHERE 1"
+				#print(sql)
+				cursor.execute(sql, (place, weather, temperature))
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
+
 if __name__ == '__main__':
 	db = DB()
 	# db.display_status_update("authentication",0)
@@ -158,5 +231,6 @@ if __name__ == '__main__':
 	# db.currentUser_update("")
 	# r = db.currentUser_check()
 	# print(r["personId"])
-	r = db.display_status_check("time")
+	# r = db.display_status_check("time")
+	r = db.weather_update("ミヤコノジョウ","隕石","23")
 	print(r)
