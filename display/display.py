@@ -223,9 +223,8 @@ class Graph(Frame):
 	def display(self):
 		if ((db.display_status_check("history") == "1") and (db.display_status_check("everything")=="1") and (db.display_status_check("analysis_end")=="1")):
 			text_color = "#"+db.display_status_check("color")
-			time.sleep(6.2)
 			personID = db.currentUser_check()["personId"]
-			print(personID)
+			#print(personID)
 			if personID == "":
 				self.photo = self.black_photo
 				self.kibun = ""
@@ -237,15 +236,17 @@ class Graph(Frame):
 					da.graph(datetime,Graph.kibun,"output.png","#ffffff")
 					global image_n
 					image_n = Image.open("./graph/output.png")
+					self.image_re = image_n.resize(graph_size, Image.ANTIALIAS)
+					self.photo = ImageTk.PhotoImage(self.image_re)
 					self.login_flag = 1
 					self.old_personID = personID
 					self.old_color = "#ffffff"
-
 			if text_color != self.old_color:
-				image_n = da.image_change(image_n,text_color)
+				image_c = da.image_change(image_n,text_color)
 				self.old_color = text_color
-			self.image_re = image_n.resize(graph_size, Image.ANTIALIAS)
-			self.photo = ImageTk.PhotoImage(self.image_re)
+				self.image_re = image_c.resize(graph_size, Image.ANTIALIAS)
+				self.photo = ImageTk.PhotoImage(self.image_re)
+
 			self.head.config(text=self.kibun, fg=text_color)
 			self.iconLbl.config(image=self.photo)
 		else:

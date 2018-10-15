@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+'''
+初期化、顔認識、個人認識、画面表示を行うソース
+'''
 import os
 import time
 import requests
 import json
+import concurrent.futures
 
 haarcascade_path = "./haarcascade_frontalface_default.xml" #カスケード分類器
 BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/" # westus regional Base URL
@@ -37,54 +41,53 @@ db.display_status_update("analysis_end",0)
 
 ###表情認識の為の処理
 def emotion(personId):
-	docomo.talk("5秒間お待ちください")
 	my_opencv.video_capture()
-	db.display_status_update("analysis_end",1)
-	docomo.talk("完了しました")
-
 	url = "http://10.12.156.150:8000/emotion"
 	file = "./cache/video.avi"
 	try:
 		r = requests.post(url, data=open(file, "rb"), timeout=10)
 		print("{}".format(json.dumps(r.json(),indent=4)))
 		db.emotion_2(r.json(), personId)
+		db.display_status_update("analysis_end",1)
+		
 	except:
 		print("Failure")
 	finally:
 		pass
 
+def welcome(message):
+	docomo.talk(message)
+	#時間を話す
+	if db.display_status_check("sound_time") == "1":
+		docomo.talk_clock()
+
+	#天気
+	if db.display_status_check("sound_weather") == "1":
+		weather=db.weather_check()
+		docomo.talk("{}の天気は{},気温は{}℃です。".format(weather["place"],weather["weather"],weather["temperature"]))
+
+
 #mainループ
 while True:
-	if db.display_status_check("camera") == "1":
-		camera=True
-	else:
-		camera=False
-	my_opencv.face_tracking(display_status=camera)
+
+	my_opencv.face_tracking()
 	result = id.identification(display_status=True)
 	db.display_status_update("everything",1)
 	if result[0]:
+		db.currentUser_update(result[1])
+		db.display_status_update("authentication",1)
 		name = db.get_name(result[1])
-		
-		message="{}{}さま、こんにちは".format(name["last_kana"],name["first_kana"])
-		docomo.talk(message)
+		message="{}{}さん、こんにちは".format(name["last_kana"],name["first_kana"])
 
-		#時間を話す
-		if db.display_status_check("sound_time") == "1":
-			docomo.talk_clock()
-
-		#天気
-		if db.display_status_check("sound_weather") == "1":
-			weather=db.weather_check()
-			docomo.talk("{}の天気は{},気温は{}℃です。".format(weather["place"],weather["weather"],weather["temperature"]))
-			
+		executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 		if not "guest" == result[1]:
-			emotion(result[1])
-			
+			executor.submit(emotion,result[1])
+		executor.submit(welcome,message)
+
 		while True:
-			db.display_status_update("authentication",1)
-			db.currentUser_update(result[1])
+			
 			#認証状態
-			if not my_opencv.face_tracking(timeout=15,display_status=camera):
+			if not my_opencv.face_tracking(timeout=15):
 				docomo.talk("さようなら")
 				db.display_status_update("authentication",0)
 				db.currentUser_update("")

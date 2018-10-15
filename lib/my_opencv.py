@@ -40,22 +40,26 @@ class My_OpenCV:
 			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(90, 90), maxSize=(100, 100))
 			if self.display_status:
 				self.infomation(image, facerect)
-
+			else:
+				cv2.destroyAllWindows()
 			if len(facerect) > 0:
 				sum_of_detection = sum_of_detection + 1
 		self.face_image = face_image
 
-	def face_tracking(self,timeout=None,display_status=False):
-		self.display_status = display_status
+	def face_tracking(self,timeout=None):
 		initial_time = time.time()
 		while True:
+			if db.display_status_check("camera") == "1":
+				self.display_status=True
+			else:
+				self.display_status=False
 			start = time.time()
 			self.detection()
 			elapsed_time = time.time() - start
 			if not timeout is None: #timeout処理
 				if not time.time()-initial_time<timeout:
 					return False
-			if time.time()-initial_time>30: #自動消灯
+			if time.time()-initial_time>60: #自動消灯
 				db.display_status_update("everything",0)
 			if elapsed_time < 1:
 				cv2.imwrite(face_image_path, self.face_image)
