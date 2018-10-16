@@ -29,7 +29,7 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
-	def emotion_2(self, emotion_result, personId):
+	def emotion(self, emotion_result, personId):
 		# MySQLに接続する
 		self.connection()
 

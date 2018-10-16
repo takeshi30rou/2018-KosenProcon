@@ -45,7 +45,7 @@ LOCALE_LOCK = threading.Lock()
 ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
 time_format = 24 # 時間表示設定
 date_format = "%b %d, %Y" # check python doc for strftime() for options
-redraw_time = 2000 #ms
+redraw_time = 5000 #ms
 #文字サイズ設定
 BIG_text_size = 80
 xlarge_text_size = 55
@@ -215,7 +215,7 @@ class Graph(Frame):
 		black_image = Image.open("./graph/black.png")
 		black_image = black_image.resize(graph_size, Image.ANTIALIAS)
 		logo_image = Image.open("./assets/kyo.png")
-		logo_image = logo_image.resize((80,60), Image.ANTIALIAS)
+		logo_image = logo_image.resize((100,60), Image.ANTIALIAS)
 		self.logo_photo = ImageTk.PhotoImage(logo_image)
 		self.black_photo = ImageTk.PhotoImage(black_image)
 		self.iconLbl = Label(self, bg='black')
@@ -227,7 +227,7 @@ class Graph(Frame):
 		self.ip_logo.config(image=self.logo_photo)
 		self.ip_host = Label(self.logoFrame, font=('Helvetica', vsmall_text_size), fg="white", bg="black")
 		self.ip_host.pack(side=RIGHT, anchor=W)
-		self.ip_host.config(text=host_name+"\nhttp://"+ipaddress)
+		self.ip_host.config(text="http://"+host_name+".local\nhttp://"+ipaddress+"  ")
 		self.display()
 
 	def display(self):
