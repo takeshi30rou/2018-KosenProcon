@@ -7,4 +7,6 @@ video.avi
 credentials.json
 token.json
 
+display/graph/output.png
+
 *.pyc
