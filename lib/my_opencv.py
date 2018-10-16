@@ -63,35 +63,7 @@ class My_OpenCV:
 				db.display_status_update("everything",0)
 			if elapsed_time < 1:
 				cv2.imwrite(face_image_path, self.face_image)
-				return True
-
-	#FaceAPIレスポンスのfaceRectangleで写真を切り取る
-	def faceAPI_add_face(self, detect_result, identify_result):
-		
-		today = datetime.date.today()
-
-		now = datetime.datetime.today()
-		time = datetime.time(now.hour,now.minute,now.second)
-
-		if identify_result[0]["candidates"] == []:
-			personId = "unknown"
-		else:
-			personId = identify_result[0]["candidates"][0]["personId"]
-
-
-			if not os.path.isdir("./face/"+personId):
-				os.system("mkdir "+"./face/"+personId)
-
-			left = detect_result[0]["faceRectangle"]["left"]
-			top = detect_result[0]["faceRectangle"]["top"]
-			width = detect_result[0]["faceRectangle"]["width"]
-			height = detect_result[0]["faceRectangle"]["height"]
-
-			path ="./face/"+personId+"/"+str(today)+"_"+str(time)+".jpg"
-			face_image = cv2.imread(face_image_path)
-			face_image = face_image[top:top+height,left:left+width]
-			cv2.imwrite(path, face_image)
-				
+				return True	
 				
 	#表情認識ための表情を撮影する
 	def video_capture(self, frame=50,display_status=False):

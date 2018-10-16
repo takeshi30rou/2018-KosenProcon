@@ -29,35 +29,6 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
-	def emotion_1(self, detect_result, personId):
-		# MySQLに接続する
-		self.connection()
-
-		emotion = []
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["anger"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["contempt"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["disgust"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["fear"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["happiness"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["neutral"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["sadness"])
-		emotion.append(detect_result[0]["faceAttributes"]["emotion"]["surprise"])
-
-		try:
-			# Insert処理
-			with self.c.cursor() as cursor:
-			    sql = "INSERT INTO emotion"\
-			    " (personId, anger, contempt, disgust, fear, happiness, neutral, sadness, surprise) "\
-			    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-			    #print(sql)
-			    r = cursor.execute(sql, (personId, *emotion))
-			    #print(r) # -> 1
-			    # autocommitではないので、明示的にコミットする
-			    self.c.commit()
-		finally:
-			# MySQLから切断する
-			self.c.close()
-
 	def emotion_2(self, emotion_result, personId):
 		# MySQLに接続する
 		self.connection()
@@ -192,7 +163,6 @@ class DB:
 	def weather_check(self):
 		# MySQLに接続する
 		self.connection()
-
 		try:
 			# select処理
 			with self.c.cursor() as cursor:
@@ -223,6 +193,24 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
+	def personId_to_calendarId(self,personId):
+			# MySQLに接続する
+		self.connection()
+		try:
+			# select処理
+			with self.c.cursor() as cursor:
+				sql = "SELECT `calendarId` FROM `calendarIds` WHERE `personId`= %s"
+				#print(sql)
+				cursor.execute(sql,personId)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+				# Select結果を取り出す
+				result = cursor.fetchone()
+				return result
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
 
 if __name__ == '__main__':
 	db = DB()
@@ -232,5 +220,6 @@ if __name__ == '__main__':
 	# r = db.currentUser_check()
 	# print(r["personId"])
 	# r = db.display_status_check("time")
-	r = db.weather_update("ミヤコノジョウ","隕石","23")
-	print(r)
+	r = db.personId_to_calendarId("3e51615e-e616-4576-a9ff-fd9f1c73bdca")
+	print(r["calendarId"])
+	

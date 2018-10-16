@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 import datetime
 from googleapiclient.discovery import build
@@ -41,9 +42,8 @@ def main(calendarID=defaultCalendarID):
 		start = event['start'].get('dateTime', event['start'].get('date'))
 		end = event['end'].get('dateTime', event['end'].get('date'))
 		r = arrangeArrange(start, end)
-		# if datetime.datetime.now().weekday() == r[2]:
-		# 	cal.append([event['summary'],r[0],r[1]])
-		cal.append([event['summary'],r[0],r[1]])
+		if datetime.datetime.now().weekday() == r[2]:
+			cal.append([event['summary'],r[0],r[1]])
 	return cal
 
 def arrangeArrange(startTime, endTime):
@@ -54,13 +54,10 @@ def arrangeArrange(startTime, endTime):
 	returnStart = start.strftime("%H時%M分")
 	returnEnd = end.strftime("%H時%M分")
 	if not start.strftime("%d") == end.strftime("%d"):
-		returnStart = start.strftime("%H時%M分")
 		returnEnd = end.strftime("%d日%H時%M分")
 	if not start.strftime("%m") == end.strftime("%m"):
-		returnStart = start.strftime("%H時%M分")
 		returnEnd = end.strftime("%m月%d日%H時%M分")
 	if not start.strftime("%Y") == end.strftime("%Y"):
-		returnStart = start.strftime("%H時%M分")
 		returnEnd = end.strftime("%Y年%m月%d日%H時%M分")
 	return returnStart, returnEnd, start.weekday()
 
