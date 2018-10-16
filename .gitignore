@@ -1,6 +1,5 @@
 # for security
 apikey.py
-face/
 cache/
 faceAPI_config
 face_image.jpg
