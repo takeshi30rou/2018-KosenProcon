@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import sys,os
 sys.path.append("/home/pi/2018-KosenProcon/")
 from apikey import *
-#from __future__ import unicode_literals, print_function, absolute_import
 from PIL import Image, ImageChops
 import copy
 import sys,os
@@ -50,8 +49,8 @@ icon_lookup_2 = {
     'hail': 12
 }
 
-def rec_k(kib,wet):
-    if ((kib >= 0) and (kib <3)):
+def rec_k(kib,wet): #気分と天気からリコメンドする内容を決定
+    if (kib <0):
         kibun_now = "元気がない"
         if ((wet == 0) or (wet == 8)):
             Artist = "YUI"
@@ -73,7 +72,7 @@ def rec_k(kib,wet):
             Artist = "YUI"
             Music = "Rolling star"
             bs = "家でゆっくり"
-    if ((kib >= 3) and (kib <7)):
+    if ((kib >= 0) and (kib <5)):
         kibun_now = "何とも言えない"
         if ((wet == 0) or (wet == 8)):
             Artist = "BUMP OF CHICKEN"
@@ -95,7 +94,7 @@ def rec_k(kib,wet):
             Artist = "BUMP OF CHICKEN"
             Music = "メーデー"
             bs = "家でゆっくり"
-    if (kib >= 7):
+    if (kib >= 5):
         kibun_now = "元気いっぱい"
         if ((wet == 0) or (wet == 8)):
             Artist = "RADWIMPS"
@@ -118,6 +117,7 @@ def rec_k(kib,wet):
             Music = "国歌"
             bs = "家でゆっくり"
     return Artist,Music,kibun_now,bs
+
 def get_ip(self):
         try:
             ip_url = "http://jsonip.com/"
@@ -128,43 +128,36 @@ def get_ip(self):
             traceback.print_exc()
             return "Error: %s. Cannot get ip." % e
 
-def weather_setup():
+def weather_setup(): #天気情報を取得
     if latitude is None and longitude is None:
         # get location
         location_req_url = "http://freegeoip.net/json/%s" % self.get_ip()
         r = requests.get(location_req_url)
         location_obj = json.loads(r.text)
-
         lat = location_obj['latitude']
         lon = location_obj['longitude']
-
         location2 = "%s, %s" % (location_obj['city'], location_obj['region_code'])
-
         # get weather
         weather_req_url = "https://api.darksky.net/forecast/%s/%s,%s?lang=%s&units=%s" % (weather_api_token, lat,lon,weather_lang,weather_unit)
     else:
         location2 = ""
         # get weather
         weather_req_url = "https://api.darksky.net/forecast/%s/%s,%s?lang=%s&units=%s" % (weather_api_token, latitude, longitude, weather_lang, weather_unit)
-
     r = requests.get(weather_req_url)
     weather_obj = json.loads(r.text)
-
     degree_sign= '℃'
     temperature2 = "%s%s" % (str(round(((int(weather_obj['currently']['temperature'])-32)/1.8),1)), degree_sign)
     currently2 = weather_obj['currently']['summary']
     forecast2 = weather_obj["hourly"]["summary"]
-
     icon_id = weather_obj['currently']['icon']
     icon2 = None
     weather_num = 1
-
     if icon_id in icon_lookup:
         icon2 = icon_lookup[icon_id]
         weather_num = icon_lookup_2[icon_id]
     return weather_num,icon2,temperature2,currently2,forecast2
 
-def graph(data_x,data_y,file_name,color):
+def graph(data_x,data_y,file_name,color): #グラフを作成
     plt.rcParams["font.size"] = 18
     fig = plt.figure(figsize=(10,4.5),dpi=200)
     ax = fig.add_subplot(111)
@@ -183,7 +176,7 @@ def graph(data_x,data_y,file_name,color):
     filename = "./graph/"+file_name
     plt.savefig(filename,facecolor="black",edgecolor="white")
 
-def image_change(img_n,color):
+def image_change(img_n,color): #画像データ内の白色を指定の色に変更
     img = copy.deepcopy(img_n)
     r, g, b, a = img.split()
     src_color = (255, 255, 255)
@@ -196,7 +189,7 @@ def image_change(img_n,color):
     img.paste(Image.new("RGB", img.size, dst_color), mask=mask)
     return img
 
-def emotion_data(personID):
+def emotion_data(personID): #過去７日間の表情認識結果を取得
     kibunnn = db.emotion_status_check(personID)
     datetime = db.emotion_datetime_status_check(personID)
     kibun=[]
@@ -205,12 +198,12 @@ def emotion_data(personID):
     num_d = len(datetime)
     if num_k < 7:
         for j in range(7 - num_k):
-            kibunnn.append({"angry":0})
+            kibunnn.append({"emotion_index":0})
     if num_d < 7:
         for j in range(7 - num_d):
             datetime.append({"datetime":"-"})
     for i in range(7):
-        kibun.append(kibunnn[i]["angry"])
+        kibun.append(kibunnn[i]["emotion_index"])
         if datetime[i]["datetime"] != "-":
             datetime_1 = str(datetime[i]["datetime"]).split()[0][5:10] +" "+ str(datetime[i]["datetime"]).split()[1][0:5]
             dt.append(datetime_1)

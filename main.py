@@ -40,6 +40,7 @@ def emotion(personId):
 		r = requests.post(url, data=open(file, "rb"), timeout=10)
 		print("{}".format(json.dumps(r.json(),indent=4)))
 		db.emotion(r.json(), personId)
+		print(r.json())
 	except:
 		print("Failure")
 	finally:

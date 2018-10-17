@@ -30,11 +30,13 @@ class DB:
 			self.c.close()
 
 	def emotion(self, emotion_result, personId):
+		latest = self.latest_emotion_index(personId)
+		index = self.evaluation(emotion_result["happy"],emotion_result["sad"],emotion_result["neutral"])+latest["emotion_index"]
 		# MySQLに接続する
 		self.connection()
 
 		label = {0:'angry',1:'disgust',2:'fear',3:'happy',4:'sad',5:'surprise',6:'neutral'}
-
+		
 		emotion = []
 		for i in range(7):
 			emotion.append(emotion_result[label[i]])
@@ -43,10 +45,10 @@ class DB:
 			# Insert処理
 			with self.c.cursor() as cursor:
 			    sql = "INSERT INTO emotion2"\
-			    " (personId,angry,disgust,fear,happy,sad,surprise,neutral) "\
-			    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+			    " (personId,angry,disgust,fear,happy,sad,surprise,neutral,emotion_index) "\
+			    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 			    #print(sql)
-			    r = cursor.execute(sql, (personId, *emotion))
+			    r = cursor.execute(sql, (personId, *emotion, index))
 			    #print(r) # -> 1
 			    # autocommitではないので、明示的にコミットする
 			    self.c.commit()
@@ -80,7 +82,7 @@ class DB:
 		try:
 			# select処理
 			with self.c.cursor() as cursor:
-				sql = "SELECT `angry` FROM `emotion2` WHERE `personId`=%s ORDER BY `datetime` DESC"
+				sql = "SELECT `emotion_index` FROM `emotion2` WHERE `personId`=%s ORDER BY `datetime` DESC"
 				#print(sql)
 				cursor.execute(sql,userID)
 				# オートコミットじゃないので、明示的にコミットを書く必要がある
@@ -106,7 +108,7 @@ class DB:
 				self.c.commit()
 				# Select結果を取り出す
 				result = cursor.fetchall()
-				return result#["disgust"]
+				return result
 		finally:
 			# MySQLから切断する
 			self.c.close()
@@ -211,6 +213,28 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
+	def evaluation(self,happy,sad,neutral):
+		y=0.000980305511429404+0.0222859331905098*happy-0.0225111298759341*sad+0.0000242095263100815*neutral
+		return y
+
+	def latest_emotion_index(self, personId):
+		# MySQLに接続する
+		self.connection()
+
+		try:
+			# Insert処理
+			with self.c.cursor() as cursor:
+				sql = "SELECT  `datetime`,`emotion_index` FROM `emotion2` WHERE `personId`=%s ORDER BY `datetime` DESC"
+				#print(sql)
+				cursor.execute(sql,personId)
+				# オートコミットじゃないので、明示的にコミットを書く必要がある
+				self.c.commit()
+				# Select結果を取り出す
+				result = cursor.fetchone()
+				return result
+		finally:
+			# MySQLから切断する
+			self.c.close()
 
 if __name__ == '__main__':
 	db = DB()
@@ -220,6 +244,14 @@ if __name__ == '__main__':
 	# r = db.currentUser_check()
 	# print(r["personId"])
 	# r = db.display_status_check("time")
-	r = db.personId_to_calendarId("3e51615e-e616-4576-a9ff-fd9f1c73bdca")
-	print(r["calendarId"])
-	
+	ID = "7ab50861-e7a2-4bd4-9f5a-ec89649aee7c"
+	r = {
+    "neutral": 2.0068106651306152,
+    "fear": 0.35729971528053284,
+    "happy": 0.2814096212387085,
+    "sad": 4.895124435424805,
+    "disgust": 0.004688642453402281,
+    "angry": 5.445241928100586,
+    "surprise": 0.00942625105381012
+}
+	db.emotion(r, ID)
