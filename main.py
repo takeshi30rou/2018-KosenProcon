@@ -34,7 +34,7 @@ db.display_status_update("analysis_end",0)
 #表情認識の為の処理
 def emotion(personId):
 	my_opencv.video_capture()
-	url = "http://192.168.50.1:8000/emotion"
+	url = "http://10.12.156.150:8000/emotion"
 	file = "./cache/video.avi"
 	try:
 		r = requests.post(url, data=open(file, "rb"), timeout=10)
