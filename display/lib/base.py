@@ -178,7 +178,7 @@ def graph(data_x,data_y,file_name,color): #グラフを作成
 
 def image_change(img_n,color): #画像データ内の白色を指定の色に変更
     img = copy.deepcopy(img_n)
-    r, g, b, a = img.split()
+    r, g, b ,a= img.split()
     src_color = (255, 255, 255)
     _r = r.point(lambda _: 1 if _ == src_color[0] else 0, mode="1")
     _g = g.point(lambda _: 1 if _ == src_color[1] else 0, mode="1")

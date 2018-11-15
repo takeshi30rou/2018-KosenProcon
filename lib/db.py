@@ -225,17 +225,22 @@ class DB:
 			# Insert処理
 			with self.c.cursor() as cursor:
 				sql = "SELECT  `datetime`,`emotion_index` FROM `emotion2` WHERE `personId`=%s ORDER BY `datetime` DESC"
-				#print(sql)
+				print(sql)
 				cursor.execute(sql,personId)
 				# オートコミットじゃないので、明示的にコミットを書く必要がある
 				self.c.commit()
 				# Select結果を取り出す
 				result = cursor.fetchone()
+				if result == None:
+					result = {"datetime":"-","emotion_index":0}
 				return result
+		except Exception as e:
+				return {datetime:"-",emotion_index:0}
+				print(e)
 		finally:
 			# MySQLから切断する
 			self.c.close()
-
+	
 if __name__ == '__main__':
 	db = DB()
 	# db.display_status_update("authentication",0)
@@ -244,7 +249,7 @@ if __name__ == '__main__':
 	# r = db.currentUser_check()
 	# print(r["personId"])
 	# r = db.display_status_check("time")
-	ID = "7ab50861-e7a2-4bd4-9f5a-ec89649aee7c"
+	ID = "8fdbf138-3a97-422b-ae5c-1f0093211bd7"
 	r = {
     "neutral": 2.0068106651306152,
     "fear": 0.35729971528053284,

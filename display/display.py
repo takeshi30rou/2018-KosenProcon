@@ -98,7 +98,7 @@ class Clock(Frame): #時間表示
 
 class Weather(Frame): #天気情報表示
 	weather2,icon2,temperature2,currently2,forecast2= da.weather_setup() #天気情報の取得
-	db.weather_update("ミヤコノジョウ",currently2,temperature2) #天気情報の更新
+	db.weather_update("ミヤコノジョウシ",currently2,temperature2) #天気情報の更新
 	def __init__(self, parent, *args, **kwargs): #初期設定
 		Frame.__init__(self, parent, bg='black')
 		self.old_colors = "#ffffff"
@@ -135,11 +135,12 @@ class Weather(Frame): #天気情報表示
 				print("call darkAPI")
 				self.start = time.time() #時間をリセット
 			if self.text_colors != self.old_colors:
-				self.image_2 = da.image_change(self.image,self.text_colors)
-				image_2 = self.image_2.resize((xlarge_text_size*2, xlarge_text_size*2), Image.ANTIALIAS)
-				photo = ImageTk.PhotoImage(image_2)
-				self.photo = photo
-				self.old_colors = self.text_colors
+				if self.image :
+					self.image_2 = da.image_change(self.image,self.text_colors)
+					image_2 = self.image_2.resize((xlarge_text_size*2, xlarge_text_size*2), Image.ANTIALIAS)
+					photo = ImageTk.PhotoImage(image_2)
+					self.photo = photo
+					self.old_colors = self.text_colors
 			self.currentlyLbl.config(text=self.currently, fg=self.text_colors)
 			self.forecastLbl.config(text=self.forecast, fg=self.text_colors)
 			self.temperatureLbl.config(text=self.temperature, fg=self.text_colors)
@@ -156,7 +157,7 @@ class Weather(Frame): #天気情報表示
 	def get_weather(self):
 		try:
 			Weather.weather2,icon2,temperature2,currently2,forecast2= da.weather_setup() #天気情報の更新
-			db.weather_update("ミヤコノジョウ",currently2,temperature2) #データベース上の天気情報を更新
+			db.weather_update("ミヤコノジョウシ",currently2,temperature2) #データベース上の天気情報を更新
 			if icon2 is not None: #天気の状態を表す画像を取得
 				if self.icon != icon2:
 					self.icon = icon2
@@ -237,11 +238,11 @@ class Graph(Frame): #グラフ表示
 					self.login_flag = 1
 					self.old_personID = personID
 					self.old_color = "#ffffff"
-			if self.text_colors != self.old_color: #色の変更があったら更新
-				image_c = da.image_change(image_n,self.text_colors)
-				self.old_color = self.text_colors
-				self.image_re = image_c.resize(graph_size, Image.ANTIALIAS)
-				self.photo = ImageTk.PhotoImage(self.image_re)
+				if self.text_colors != self.old_color: #色の変更があったら更新
+					image_c = da.image_change(image_n,self.text_colors)
+					self.old_color = self.text_colors
+					self.image_re = image_c.resize(graph_size, Image.ANTIALIAS)
+					self.photo = ImageTk.PhotoImage(self.image_re)
 
 			self.head.config(text=self.kibun, fg=self.text_colors)
 			self.iconLbl.config(image=self.photo)
@@ -306,14 +307,15 @@ class CalendarEvent(Frame): #カレンダー表示
 		if ((db.display_status_check("calendar")=="1") and (db.display_status_check("authentication")=="1") and (db.display_status_check("everything")=="1")): #表示 or 非表示の判定
 			self.text_colors = "#"+db.display_status_check("color") #表示する色のデータ取得
 			personID = db.currentUser_check()["personId"]
-			calenderID = db.personId_to_calendarId(personID)['calendarId']  #calenderIDを取得する関数
-			if (calenderID == None):
+			calenderID = db.personId_to_calendarId(personID)  #calenderIDを取得する関数
+			#print("calenderID = "+calenderID)
+			if ((calenderID == None) or (calenderID == "")):
 				self.eventNameLbl.config(text="")
 				self.head.config(text="")
 			else:
-				if ((calenderID != self.old_calenderID) or (self.login_flag == 0)): 
-					self.get_event(calenderID)
-					self.old_calenderID = calenderID
+				if ((calenderID['calendarId'] != self.old_calenderID) or (self.login_flag == 0)): 
+					self.get_event(calenderID['calendarId'])
+					self.old_calenderID = calenderID['calendarId']
 					self.login_flag = 1
 					print("calendar update")
 				self.eventNameLbl.config(text=self.cal, fg=self.text_colors)
