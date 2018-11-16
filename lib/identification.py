@@ -17,6 +17,16 @@ class Identification:
 		if self.display_status:
 			print("{}".format(json.dumps(text,indent=4)))
 
+	def get_maximum_coordinates(self,result):
+
+		arr=[]
+		for item in result:
+			height=int(item["faceRectangle"]["height"])
+			width=int(item["faceRectangle"]["width"])
+			arr.append([item["faceId"],height*width])
+
+		arr.sort(reverse=True, key=lambda x:x[1]) #height*widthを基準に降順に並び替え
+		return arr
 	#azure FaceAPIを使って個人認識を行う
 	def identification(self,display_status=False):
 		self.display_status = display_status #結果をdisplayするか
@@ -24,26 +34,26 @@ class Identification:
 		self.display(detect_result)
 
 		if not str(detect_result) == "[]": #個人認識を行う
-			faceIds = [detect_result[0]["faceId"]]
-			if len(detect_result) == 1:
-				identify_result = CF.face.identify(faceIds,"teamkatori")
-				self.display(identify_result)
+			faceId = self.get_maximum_coordinates(detect_result)
 
-				if not str(identify_result[0]["candidates"]) == "[]":
-					return True,identify_result[0]["candidates"][0]["personId"]
-					
-				else:
-					return True,"guest"
+			identify_result = CF.face.identify([faceId[0][0]],"teamkatori") #[faceId]にすること
+			self.display(identify_result)
+
+			if not str(identify_result[0]["candidates"]) == "[]":
+				return True,identify_result[0]["candidates"][0]["personId"]
+				
 			else:
-				return False,"複数人を検知しました"
+				return True,"guest"
+
 		else:
 			return False,"顔を認識できませんでした"
 
 if __name__ == '__main__':
-	#apikeyを取り出す
+	import sys,os
+	sys.path.append("/home/pi/2018-KosenProcon/")
 	from apikey import *
 	BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/"
-	img_url = '../face_image.jpg'
+	img_url = '../cache/face_image.jpg'
 	id = Identification(BASE_URL,FACEAPI,img_url)
 	personId = id.identification(display_status=True)
 	print(personId)
