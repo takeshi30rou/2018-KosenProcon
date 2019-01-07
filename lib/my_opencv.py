@@ -9,7 +9,10 @@ import copy
 face_image_path = "./cache/face_image.jpg"
 video_path = "./cache/video.avi"
 
-from lib.db import DB #データベースを使うためのライブラリ
+import sys,os
+sys.path.append("/home/pi/2018-KosenProcon/lib")
+
+from db import DB #データベースを使うためのライブラリ
 db = DB()
 
 class My_OpenCV:
@@ -24,6 +27,7 @@ class My_OpenCV:
 	def infomation(self, image, facerect):
 		color = (255, 255, 255)
 		for rect in facerect:
+			rect =rect*4
 			cv2.rectangle(image, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), color, thickness=2)#検出した顔を囲む矩形の作成
 		image = cv2.flip(image, 1)#反転
 		cv2.imshow("face", image)
@@ -35,11 +39,11 @@ class My_OpenCV:
 		while sum_of_detection<10 and (time.time()-start)<2:
 			r, image = self.c.read()
 			face_image = copy.deepcopy(image)#保存用に値渡しを行う
-			image = cv2.resize(image, None, fx = 0.5, fy = 0.5)#アスペクト比を維持してリサイズする
+			image = cv2.resize(image, (0, 0), fx=0.25, fy=0.25)#処理高速化のために1/4にリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
-			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(90, 90), maxSize=(100, 100))
+			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1)
 			if self.display_status:
-				self.infomation(image, facerect)
+				self.infomation(face_image, facerect)
 			else:
 				cv2.destroyAllWindows()
 			if len(facerect) > 0:
@@ -81,6 +85,7 @@ class My_OpenCV:
 if __name__ == '__main__':
 	path = "../haarcascade_frontalface_default.xml"
 	mo = My_OpenCV(path)
-	r = mo.face_tracking()
+	while(1):
+		r = mo.face_tracking()
 	# print(r)
 	# mo.video_capture(frame=80)
