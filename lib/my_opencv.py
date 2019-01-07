@@ -27,7 +27,7 @@ class My_OpenCV:
 	def infomation(self, image, facerect):
 		color = (255, 255, 255)
 		for rect in facerect:
-			rect =rect*4
+			rect =rect*2
 			cv2.rectangle(image, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), color, thickness=2)#検出した顔を囲む矩形の作成
 		image = cv2.flip(image, 1)#反転
 		cv2.imshow("face", image)
@@ -39,9 +39,9 @@ class My_OpenCV:
 		while sum_of_detection<10 and (time.time()-start)<2:
 			r, image = self.c.read()
 			face_image = copy.deepcopy(image)#保存用に値渡しを行う
-			image = cv2.resize(image, (0, 0), fx=0.25, fy=0.25)#処理高速化のために1/4にリサイズする
+			image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)#処理高速化のために1/4にリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
-			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1)
+			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1,minSize=(90, 90), maxSize=(100, 100))
 			if self.display_status:
 				self.infomation(face_image, facerect)
 			else:
