@@ -26,19 +26,19 @@ if not os.path.isdir("./cache"):
 
 
 #表情認識の為の処理
-def emotion(personId):
+def emotion(personId,HR):
 	my_opencv.video_capture()
-	# url = "http://40.74.75.91:8000/emotion"
-	# file = "./cache/video.avi"
+	url = "http://10.12.156.150:8000/emotion"
+	file = "./cache/video.avi"
 	# try:
 	# 	r = requests.post(url, data=open(file, "rb"), timeout=10)
 	# 	print("{}".format(json.dumps(r.json(),indent=4)))
-	# 	db.emotion(r.json(), personId)
+	# 	db.emotion3(r.json(), personId,HR)
 	# 	print(r.json())
 	# except:
 	# 	print("Failure")
-	# finally:
-	# 	db.display_status_update("analysis_end",1)
+	# 	1/0
+
 
 # def ini():
 # 	right = 21
@@ -52,7 +52,15 @@ def emotion(personId):
 
 # print(button.button())
 
-
+rr = {
+"neutral": 2.0068106651306152,
+"fear": 0.35729971528053284,
+"happy": 0.2814096212387085,
+"sad": 4.895124435424805,
+"disgust": 0.004688642453402281,
+"angry": 5.445241928100586,
+"surprise": 0.00942625105381012
+}
 
 try:
 
@@ -62,20 +70,19 @@ try:
 	result = id.identification(display_status=True)
 	if result[0]:
 		name = db.get_name(result[1])
-		if "guest" == result[1]:
-			docomo.talk("エラーが発生しました。終了します")
-			sys.exit()
 
 		message="{}{}さん、こんにちは".format(name["last_kana"],name["first_kana"])
 		docomo.talk(message)
 		docomo.talk("脈拍を測定します。指をセンサーにおいてください。")
-		r = heartRate.heartRate()
-		docomo.talk("脈拍は")
-		docomo.talk(str(r))
-		docomo.talk("です")
+		HR = heartRate.heartRate()
+		print("脈拍"+str(HR))
+
 
 		docomo.talk("カメラを見てください。表情認識を行います")
-		emotion(result[1])
+		# r = emotion(result[1],HR)
+		personId="7ab50861-e7a2-4bd4-9f5a-ec89649aee7c"
+		db.emotion3(rr, personId,str(HR))
+		docomo.talk("すべての処理が完了しました。ありがとうございます。")
 
 	else:
 		docomo.talk(result[1])

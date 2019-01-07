@@ -56,6 +56,31 @@ class DB:
 			# MySQLから切断する
 			self.c.close()
 
+	def emotion3(self, emotion_result, personId, HR):
+		# MySQLに接続する
+		self.connection()
+
+		label = {0:'angry',1:'disgust',2:'fear',3:'happy',4:'sad',5:'surprise',6:'neutral'}
+		
+		emotion = []
+		for i in range(7):
+			emotion.append(emotion_result[label[i]])
+
+		try:
+			# Insert処理
+			with self.c.cursor() as cursor:
+			    sql = "INSERT INTO emotion3"\
+			    " (personId,angry,disgust,fear,happy,sad,surprise,neutral,HR) "\
+			    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+			    #print(sql)
+			    r = cursor.execute(sql, (personId, *emotion, HR))
+			    #print(r) # -> 1
+			    # autocommitではないので、明示的にコミットする
+			    self.c.commit()
+		finally:
+			# MySQLから切断する
+			self.c.close()
+
 	def display_status_check(self,service):
 		# MySQLに接続する
 		self.connection()
