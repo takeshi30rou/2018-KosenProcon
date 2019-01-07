@@ -4,6 +4,8 @@ from lib import button
 from lib import heartRate
 import os
 import sys
+import requests
+import json
 
 haarcascade_path = "./haarcascade_frontalface_default.xml" #カスケード分類器
 BASE_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/" # westus regional Base URL
@@ -23,22 +25,17 @@ if not os.path.isdir("./cache"):
 	if not os.path.isdir("./cache/audio"):
 		os.system("mkdir ./cache/audio")
 
-
-
 #表情認識の為の処理
 def emotion(personId,HR):
 	my_opencv.video_capture()
 	url = "http://10.12.156.150:8000/emotion"
 	file = "./cache/video.avi"
-	# try:
-	# 	r = requests.post(url, data=open(file, "rb"), timeout=10)
-	# 	print("{}".format(json.dumps(r.json(),indent=4)))
-	# 	db.emotion3(r.json(), personId,HR)
-	# 	print(r.json())
-	# except:
-	# 	print("Failure")
-	# 	1/0
-
+	try:
+		r = requests.post(url, data=open(file, "rb"), timeout=10)
+		return r
+	except:
+		print("Failure")
+		1/0
 
 # def ini():
 # 	right = 21
@@ -47,27 +44,16 @@ def emotion(personId,HR):
 # 	GPIO.wait_for_edge(right, GPIO.RISING)
 # 	GPIO.cleanup()
 
-
 # ini()
-
 # print(button.button())
-
-rr = {
-"neutral": 2.0068106651306152,
-"fear": 0.35729971528053284,
-"happy": 0.2814096212387085,
-"sad": 4.895124435424805,
-"disgust": 0.004688642453402281,
-"angry": 5.445241928100586,
-"surprise": 0.00942625105381012
-}
 
 try:
 
 	docomo.talk("処理を開始します")
+	docomo.talk("カメラを見てください。個人を特定します")
 
 	my_opencv.face_tracking()
-	result = id.identification(display_status=True)
+	result = id.identification()
 	if result[0]:
 		name = db.get_name(result[1])
 
@@ -79,9 +65,28 @@ try:
 
 
 		docomo.talk("カメラを見てください。表情認識を行います")
-		# r = emotion(result[1],HR)
-		personId="7ab50861-e7a2-4bd4-9f5a-ec89649aee7c"
-		db.emotion3(rr, personId,str(HR))
+		r = emotion(result[1],HR)
+
+		docomo.talk("以下の内容で登録しますか？")
+
+		print("---------------------------------------------------------")
+		print("{}{}".format(name["last_kana"],name["first_kana"]))
+		print("脈拍"+str(HR))
+		print("{}".format(json.dumps(r.json(),indent=4)))
+		print("---------------------------------------------------------")
+
+		while True:
+			YN = input("yes/no: ")
+			if YN == "no":
+				docomo.talk("初めからやり直してください。")
+				sys.exit()
+			elif YN == "yes":
+				break
+			else:
+				print("yesかnoで入力してください")
+
+		db.emotion3(r.json(),result[1],str(HR))
+
 		docomo.talk("すべての処理が完了しました。ありがとうございます。")
 
 	else:
@@ -89,4 +94,5 @@ try:
 
 except Exception as e:
 	docomo.talk("エラーが発生しました。終了します")
-	raise e
+	raise(e)
+

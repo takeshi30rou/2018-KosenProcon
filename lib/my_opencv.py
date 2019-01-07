@@ -39,7 +39,7 @@ class My_OpenCV:
 		while sum_of_detection<10 and (time.time()-start)<2:
 			r, image = self.c.read()
 			face_image = copy.deepcopy(image)#保存用に値渡しを行う
-			image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)#処理高速化のために1/4にリサイズする
+			image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)#処理高速化のためにリサイズする
 			image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)#グレースケール変換
 			facerect = self.cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1,minSize=(90, 90), maxSize=(100, 100))
 			if self.display_status:
@@ -72,10 +72,10 @@ class My_OpenCV:
 	#表情認識ための表情を撮影する
 	def video_capture(self, frame=50,display_status=False):
 		fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
-		video = cv2.VideoWriter(video_path, fourcc, 10.0, (640, 480))
+		video = cv2.VideoWriter(video_path, fourcc, 10.0, (320,240))
 		for i in range(1, frame):
 			r, image = self.c.read()
-			img = cv2.resize(image, (640,480))
+			img = cv2.resize(image, (320,240))
 			video.write(img)
 			cv2.putText(img, str(i/10.0), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
 			if display_status:
